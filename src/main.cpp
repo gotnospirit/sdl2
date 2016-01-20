@@ -8,16 +8,6 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 
-enum KeyPressSurfaces
-{
-	KEY_PRESS_SURFACE_DEFAULT,
-	KEY_PRESS_SURFACE_UP,
-	KEY_PRESS_SURFACE_DOWN,
-	KEY_PRESS_SURFACE_LEFT,
-	KEY_PRESS_SURFACE_RIGHT,
-	KEY_PRESS_SURFACE_TOTAL
-};
-
 std::string getFilepath(const char * filename)
 {
     std::ostringstream ss;
@@ -36,52 +26,6 @@ int clamp(int value, int min, int max)
         return min;
     }
     return value;
-}
-
-SDL_Surface * loadSurface(std::string const &filepath, const SDL_PixelFormat * format)
-{
-    // The final optimized image
-    SDL_Surface * optimizedSurface = nullptr;
-
-    // Load image at specified path
-    printf("Loading surface '%s'\n", filepath.c_str());
-
-    SDL_Surface * loadedSurface = IMG_Load(filepath.c_str());
-    if (!loadedSurface)
-    {
-        printf("Unable to load image %s! SDL_image Error: %s\n", filepath.c_str(), IMG_GetError());
-    }
-    else
-    {
-        // Convert surface to screen format
-        optimizedSurface = SDL_ConvertSurface(loadedSurface, format, NULL);
-        if (!optimizedSurface)
-        {
-            printf("Unable to optimize image %s! SDL Error: %s\n", filepath.c_str(), SDL_GetError());
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-    return optimizedSurface;
-}
-
-bool render(SDL_Surface * source, SDL_Surface * destination, bool stretch)
-{
-    if (source)
-    {
-        if (stretch)
-        {
-            SDL_Rect rect { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
-            SDL_BlitScaled(source, NULL, destination, &rect);
-        }
-        else
-        {
-            SDL_BlitSurface(source, NULL, destination, NULL);
-        }
-        return true;
-    }
-    return false;
 }
 
 SDL_Texture * loadTexture(std::string const &filepath, SDL_Renderer * renderer)
@@ -145,14 +89,6 @@ void destroy(SDL_Window * ptr)
     if (ptr)
     {
         SDL_DestroyWindow(ptr);
-    }
-}
-
-void destroy(SDL_Surface * ptr)
-{
-    if (ptr)
-    {
-        SDL_FreeSurface(ptr);
     }
 }
 
@@ -228,23 +164,6 @@ int main(int argc, char * args[])
     }
     else
     {
-        // //Get window surface
-        // auto screen = SDL_GetWindowSurface(window);
-
-        // //Load media
-        // auto carpet = loadSurface(getFilepath("carpet.normal.mobile.png"), screen->format);
-        // auto frame = loadSurface(getFilepath("frame.big.mobile.png"), screen->format);
-
-        // if (carpet || frame)
-        // {
-            // //Apply the image
-            // render(frame, screen, false);
-            // render(carpet, screen, false);
-
-            // //Update the surface
-            // SDL_UpdateWindowSurface(window);
-        // }
-
         //Create renderer for window
         auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         if (!renderer)
@@ -267,8 +186,6 @@ int main(int argc, char * args[])
 
             while (!quit)
             {
-                // frameTime = SDL_GetTicks();
-
                 //Handle events on queue
                 quit = input(&e, &rect);
 
@@ -296,10 +213,6 @@ int main(int argc, char * args[])
 
             destroy(renderer);
         }
-
-        // //Deallocate surfaces
-        // destroy(carpet);
-        // destroy(frame);
 
         //Destroy window
         destroy(window);
