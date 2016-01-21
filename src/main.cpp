@@ -4,11 +4,12 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
+#include "input_system.h"
+#include "actions.h"
 #include "display_object.h"
 #include "sprite.h"
 #include "spritesheet.h"
 #include "square.h"
-#include "actions.h"
 #include "utils.h"
 
 const int SCREEN_WIDTH = 700;
@@ -28,26 +29,6 @@ void destroy(SDL_Renderer * ptr)
     {
         SDL_DestroyRenderer(ptr);
     }
-}
-
-bool input(SDL_Event * e, Actions * actions)
-{
-    while (SDL_PollEvent(e) != 0)
-    {
-        if (e->type == SDL_QUIT)
-        {
-            return true;
-        }
-        else if (e->type == SDL_KEYDOWN)
-        {
-            actions->keydown(e);
-        }
-        else if (e->type == SDL_KEYUP)
-        {
-            actions->keyup(e);
-        }
-    }
-    return false;
 }
 
 void update(Actions const &actions, DisplayObject * o)
@@ -115,10 +96,9 @@ int main(int argc, char * args[])
             chips.load("3dchip.png", renderer);
 
             Square square(64, { 0xFF, 0x00, 0x00, 0xFF });
-            Actions actions;
 
-            bool quit = false;
-            SDL_Event e;
+            Actions actions;
+            InputSystem input;
 
             unsigned long frame_time = 0;
             unsigned long second_time = SDL_GetTicks();
@@ -133,12 +113,9 @@ int main(int argc, char * args[])
             chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
             square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-            while (!quit)
+            while (input.poll(&actions))
             {
                 frame_time = SDL_GetTicks();
-
-                //Handle events on queue
-                quit = input(&e, &actions);
 
                 //Update models logic (200Hz)
                 if ((frame_time - update_time) >= 5)

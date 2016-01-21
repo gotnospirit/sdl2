@@ -10,9 +10,9 @@ Actions::Actions()
     data[ACTION_RIGHT] = false;
 }
 
-void Actions::keydown(SDL_Event const * const e)
+void Actions::keydown(SDL_Event const &e)
 {
-    switch (e->key.keysym.sym)
+    switch (e.key.keysym.sym)
     {
         case SDLK_UP:
             data[ACTION_UP] = true;
@@ -32,9 +32,9 @@ void Actions::keydown(SDL_Event const * const e)
     }
 }
 
-void Actions::keyup(SDL_Event const * const e)
+void Actions::keyup(SDL_Event const &e)
 {
-    switch (e->key.keysym.sym)
+    switch (e.key.keysym.sym)
     {
         case SDLK_UP:
             data[ACTION_UP] = false;

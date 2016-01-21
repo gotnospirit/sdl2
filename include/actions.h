@@ -16,8 +16,8 @@ class Actions
 public:
     Actions();
 
-    void keyup(SDL_Event const * const);
-    void keydown(SDL_Event const * const);
+    void keyup(SDL_Event const &);
+    void keydown(SDL_Event const &);
 
     bool enabled(int) const;
 

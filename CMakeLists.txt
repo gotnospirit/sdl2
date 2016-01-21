@@ -64,6 +64,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/utils.cpp
     src/actions.cpp
+    src/input_system.cpp
     src/display_object.cpp
     src/sprite.cpp
     src/square.cpp
