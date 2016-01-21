@@ -1,55 +1,49 @@
 #include <SDL.h>
-#include <SDL_image.h>
-#include <iostream>
-#include "animated_sprite.h"
 
-float linearEaseIn(float t, float b, float c, float d)
-{
-    return c * t / d + b;
-}
+#include "animated_sprite.h"
+#include "utils.h"
 
 AnimatedSprite::AnimatedSprite(int duration) :
-    current(0),
+    current_time(0),
     duration(duration),
+    current_frame(0),
     max_frames(0),
     horizontal(false)
 {
-    clip_rect.x = 0;
-    clip_rect.y = 0;
-    clip_rect.w = 0;
-    clip_rect.h = 0;
+    clip_width = 0;
+    clip_height = 0;
 }
 
 void AnimatedSprite::update(int delta)
 {
     Sprite::update(delta);
 
-    current += delta;
-    if (current > duration)
+    current_time += delta;
+    if (current_time > duration)
     {
-        current = 0;
+        current_time = 0;
     }
 
-    int n = max_frames * linearEaseIn(current, 0, 1, duration);
-
-    if (horizontal)
-    {
-        clip_rect.x = n * clip_rect.w;
-        clip_rect.y = 0;
-    }
-    else
-    {
-        clip_rect.x = 0;
-        clip_rect.y = n * clip_rect.h;
-    }
+    current_frame = max_frames * linearEaseIn(current_time, 0, 1, duration);
 }
 
 void AnimatedSprite::render(SDL_Renderer * renderer)
 {
     if (texture)
     {
-        SDL_Rect r { rect.x, rect.y, clip_rect.w, clip_rect.h };
-        SDL_RenderCopy(renderer, texture, &clip_rect, &r);
+        SDL_Rect cr { 0, 0, clip_width, clip_height };
+
+        if (horizontal)
+        {
+            cr.x = current_frame * clip_width;
+        }
+        else
+        {
+            cr.y = current_frame * clip_height;
+        }
+
+        SDL_Rect r { x, y, clip_width, clip_height };
+        SDL_RenderCopy(renderer, texture, &cr, &r);
     }
     else
     {
@@ -59,31 +53,12 @@ void AnimatedSprite::render(SDL_Renderer * renderer)
 
 void AnimatedSprite::clip(int w, int h, bool vertical)
 {
-    if (texture)
-    {
-        max_frames = (rect.w / w) >> 0;
-        horizontal = !vertical;
+    max_frames = (width / w) >> 0;
+    horizontal = !vertical;
 
-        clip_rect.x = 0;
-        clip_rect.y = 0;
-        clip_rect.w = w;
-        clip_rect.h = h;
-    }
-    else
-    {
-        throw "No texture loaded!";
-    }
-}
+    clip_width = w;
+    clip_height = h;
 
-void AnimatedSprite::center(int w, int h)
-{
-    if (texture)
-    {
-        rect.x = (w - clip_rect.w) / 2;
-        rect.y = (h - clip_rect.h) / 2;
-    }
-    else
-    {
-        throw "No texture loaded!";
-    }
+    width = w;
+    height = h;
 }

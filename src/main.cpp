@@ -4,10 +4,12 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include <sprite.h>
-#include <animated_sprite.h>
-#include <square.h>
-#include <actions.h>
+#include "display_object.h"
+#include "sprite.h"
+#include "animated_sprite.h"
+#include "square.h"
+#include "actions.h"
+#include "utils.h"
 
 const int SCREEN_WIDTH = 700;
 const int SCREEN_HEIGHT = 420;
@@ -48,26 +50,26 @@ bool input(SDL_Event * e, Actions * actions)
     return false;
 }
 
-void update(Actions const &actions, Square * display_object)
+void update(Actions const &actions, DisplayObject * o)
 {
     if (actions.enabled(ACTION_UP))
     {
-        display_object->y(display_object->y() - 1, SCREEN_HEIGHT);
+        o->setY(clamp(o->getY() - 1, 0, SCREEN_HEIGHT));
     }
 
     if (actions.enabled(ACTION_DOWN))
     {
-        display_object->y(display_object->y() + 1, SCREEN_HEIGHT - display_object->length());
+        o->setY(clamp(o->getY() + 1, 0, SCREEN_HEIGHT - o->getHeight()));
     }
 
     if (actions.enabled(ACTION_LEFT))
     {
-        display_object->x(display_object->x() - 1, SCREEN_WIDTH);
+        o->setX(clamp(o->getX() - 1, 0, SCREEN_WIDTH));
     }
 
     if (actions.enabled(ACTION_RIGHT))
     {
-        display_object->x(display_object->x() + 1, SCREEN_WIDTH - display_object->length());
+        o->setX(clamp(o->getX() + 1, 0, SCREEN_WIDTH - o->getWidth()));
     }
 }
 
@@ -128,7 +130,7 @@ int main(int argc, char * args[])
             int dt = 0;
 
             chips.clip(45, 45, false);
-            // chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
+            chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
             square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
 
             while (!quit)
@@ -144,7 +146,7 @@ int main(int argc, char * args[])
                     ++update_counter;
                     update_time = frame_time;
 
-                    update(actions, &square);
+                    update(actions, &chips);
                 }
 
                 //Refresh screen (~60Hz)
@@ -163,9 +165,9 @@ int main(int argc, char * args[])
                     //Render texture to screen
                     frame.render(renderer);
                     carpet.render(renderer);
-                    chips.render(renderer);
 
                     square.render(renderer);
+                    chips.render(renderer);
 
                     //Update screen
                     SDL_RenderPresent(renderer);

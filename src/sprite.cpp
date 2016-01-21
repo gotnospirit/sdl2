@@ -1,25 +1,8 @@
-#include <sstream>
-#include <string>
-
 #include <SDL.h>
 #include <SDL_image.h>
 
 #include "sprite.h"
-
-std::string getFilepath(const char * filename)
-{
-    std::ostringstream ss;
-    ss << SDL_GetBasePath() << filename;
-    return ss.str();
-}
-
-Sprite::Sprite()
-{
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = 0;
-    rect.h = 0;
-}
+#include "utils.h"
 
 Sprite::~Sprite()
 {
@@ -50,8 +33,8 @@ bool Sprite::load(const char * filename, SDL_Renderer * renderer)
         }
         else
         {
-            rect.w = loadedSurface->w;
-            rect.h = loadedSurface->h;
+            width = loadedSurface->w;
+            height = loadedSurface->h;
         }
 
         //Get rid of old loaded surface
@@ -60,7 +43,7 @@ bool Sprite::load(const char * filename, SDL_Renderer * renderer)
     return !!texture;
 }
 
-void Sprite::update(int delta)
+void Sprite::update(int)
 {
 }
 
@@ -68,20 +51,8 @@ void Sprite::render(SDL_Renderer * renderer)
 {
     if (texture)
     {
-        SDL_RenderCopy(renderer, texture, &rect, &rect);
-    }
-    else
-    {
-        throw "No texture loaded!";
-    }
-}
-
-void Sprite::center(int w, int h)
-{
-    if (texture)
-    {
-        rect.x = (w - rect.w) / 2;
-        rect.y = (h - rect.h) / 2;
+        SDL_Rect r { x, y, width, height };
+        SDL_RenderCopy(renderer, texture, NULL, &r);
     }
     else
     {

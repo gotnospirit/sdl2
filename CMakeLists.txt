@@ -62,9 +62,11 @@ include_directories(
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/utils.cpp
+    src/actions.cpp
+    src/display_object.cpp
     src/sprite.cpp
     src/square.cpp
-    src/actions.cpp
     src/animated_sprite.cpp
 )
 

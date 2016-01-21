@@ -3,10 +3,12 @@
 
 #include <SDL.h>
 
-class Sprite
+#include "display_object.h"
+
+class Sprite :
+    public DisplayObject
 {
 public:
-    Sprite();
     ~Sprite();
 
     bool load(const char *, SDL_Renderer *);
@@ -14,13 +16,10 @@ public:
     void update(int);
     void render(SDL_Renderer *);
 
-    void center(int, int);
-
 protected:
     void free();
 
     SDL_Texture * texture = nullptr;
-    SDL_Rect rect;
 };
 
 #endif // _SPRITE_H_

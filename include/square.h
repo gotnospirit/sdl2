@@ -3,25 +3,19 @@
 
 #include <SDL.h>
 
-class Square
+#include "display_object.h"
+
+class Square :
+    public DisplayObject
 {
 public:
     Square(int);
     Square(int, SDL_Color const &);
 
-    void x(int, int);
-    void y(int, int);
-
-    int x() const;
-    int y() const;
-    int length() const;
-
-    void center(int, int);
-
+    void update(int);
     void render(SDL_Renderer *);
 
 private:
-    SDL_Rect rect;
     SDL_Color color;
 };
 

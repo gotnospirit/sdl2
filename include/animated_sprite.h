@@ -16,13 +16,13 @@ public:
 
     void clip(int, int, bool);
 
-    void center(int, int);
-
 protected:
-    SDL_Rect clip_rect;
-    int current;
+    int current_time;
     int duration;
+    int current_frame;
     int max_frames;
+    int clip_width;
+    int clip_height;
     bool horizontal;
 };
 
