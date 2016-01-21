@@ -1,96 +1,15 @@
 #include <stdio.h>
-#include <string>
 #include <sstream>
 
 #include <SDL.h>
 #include <SDL_image.h>
 
+#include <sprite.h>
+#include <square.h>
+#include <actions.h>
+
 const int SCREEN_WIDTH = 700;
 const int SCREEN_HEIGHT = 420;
-
-enum ACTION {
-    ACTION_UP,
-    ACTION_DOWN,
-    ACTION_LEFT,
-    ACTION_RIGHT,
-    ACTION_COUNT
-};
-
-std::string getFilepath(const char * filename)
-{
-    std::ostringstream ss;
-    ss << SDL_GetBasePath() << filename;
-    return ss.str();
-}
-
-int clamp(int value, int min, int max)
-{
-    if (value > max)
-    {
-        return max;
-    }
-    else if (value < min)
-    {
-        return min;
-    }
-    return value;
-}
-
-SDL_Texture * loadTexture(std::string const &filepath, SDL_Renderer * renderer)
-{
-    //The final texture
-    SDL_Texture * newTexture = nullptr;
-
-    //Load image at specified path
-    printf("Loading texture '%s'\n", filepath.c_str());
-
-    SDL_Surface * loadedSurface = IMG_Load(filepath.c_str());
-    if (!loadedSurface)
-    {
-        printf("Unable to load image %s! SDL_image Error: %s\n", filepath.c_str(), IMG_GetError());
-    }
-    else
-    {
-        //Create texture from surface pixels
-        newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
-        if (!newTexture)
-        {
-            printf("Unable to create texture from %s! SDL Error: %s\n", filepath.c_str(), SDL_GetError());
-        }
-
-        //Get rid of old loaded surface
-        SDL_FreeSurface(loadedSurface);
-    }
-    return newTexture;
-}
-
-bool render(SDL_Texture * source, SDL_Renderer * renderer, bool stretch)
-{
-    if (source)
-    {
-        if (stretch)
-        {
-            return 0 == SDL_RenderCopy(renderer, source, NULL, NULL);
-        }
-
-        SDL_Rect rect;
-        rect.x = 0;
-        rect.y = 0;
-        rect.w = SCREEN_WIDTH;
-        rect.h = SCREEN_HEIGHT;
-
-        SDL_QueryTexture(source, NULL, NULL, &rect.w, &rect.h);
-
-        return 0 == SDL_RenderCopy(renderer, source, NULL, &rect);
-    }
-    return false;
-}
-
-void drawShape(SDL_Rect const &rect, SDL_Color const &color, SDL_Renderer * renderer)
-{
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(renderer, &rect);
-}
 
 void destroy(SDL_Window * ptr)
 {
@@ -108,15 +27,7 @@ void destroy(SDL_Renderer * ptr)
     }
 }
 
-void destroy(SDL_Texture * ptr)
-{
-    if (ptr)
-    {
-        SDL_DestroyTexture(ptr);
-    }
-}
-
-bool input(SDL_Event * e, bool * actions)
+bool input(SDL_Event * e, Actions * actions)
 {
     while (SDL_PollEvent(e) != 0)
     {
@@ -126,70 +37,36 @@ bool input(SDL_Event * e, bool * actions)
         }
         else if (e->type == SDL_KEYDOWN)
         {
-            switch (e->key.keysym.sym)
-            {
-                case SDLK_UP:
-                    actions[ACTION_UP] = true;
-                    break;
-
-                case SDLK_DOWN:
-                    actions[ACTION_DOWN] = true;
-                    break;
-
-                case SDLK_LEFT:
-                    actions[ACTION_LEFT] = true;
-                    break;
-
-                case SDLK_RIGHT:
-                    actions[ACTION_RIGHT] = true;
-                    break;
-            }
+            actions->keydown(e);
         }
         else if (e->type == SDL_KEYUP)
         {
-            switch (e->key.keysym.sym)
-            {
-                case SDLK_UP:
-                    actions[ACTION_UP] = false;
-                    break;
-
-                case SDLK_DOWN:
-                    actions[ACTION_DOWN] = false;
-                    break;
-
-                case SDLK_LEFT:
-                    actions[ACTION_LEFT] = false;
-                    break;
-
-                case SDLK_RIGHT:
-                    actions[ACTION_RIGHT] = false;
-                    break;
-            }
+            actions->keyup(e);
         }
     }
     return false;
 }
 
-void update(bool * actions, SDL_Rect * state, int square_width)
+void update(Actions const &actions, Square * display_object)
 {
-    if (actions[ACTION_UP])
+    if (actions.enabled(ACTION_UP))
     {
-        state->y = clamp(state->y - 1, 0, SCREEN_HEIGHT);
+        display_object->y(display_object->y() - 1, SCREEN_HEIGHT);
     }
 
-    if (actions[ACTION_DOWN])
+    if (actions.enabled(ACTION_DOWN))
     {
-        state->y = clamp(state->y + 1, 0, SCREEN_HEIGHT - square_width);
+        display_object->y(display_object->y() + 1, SCREEN_HEIGHT - display_object->length());
     }
 
-    if (actions[ACTION_LEFT])
+    if (actions.enabled(ACTION_LEFT))
     {
-        state->x = clamp(state->x - 1, 0, SCREEN_WIDTH);
+        display_object->x(display_object->x() - 1, SCREEN_WIDTH);
     }
 
-    if (actions[ACTION_RIGHT])
+    if (actions.enabled(ACTION_RIGHT))
     {
-        state->x = clamp(state->x + 1, 0, SCREEN_WIDTH - square_width);
+        display_object->x(display_object->x() + 1, SCREEN_WIDTH - display_object->length());
     }
 }
 
@@ -219,13 +96,13 @@ int main(int argc, char * args[])
         else
         {
             //Load media
-            auto carpet = loadTexture(getFilepath("carpet.normal.mobile.png"), renderer);
-            auto frame = loadTexture(getFilepath("frame.big.mobile.png"), renderer);
+            Sprite carpet("carpet.normal.mobile.png", renderer);
+            Sprite frame("frame.big.mobile.png", renderer);
+            Square square(64, { 0xFF, 0x00, 0x00, 0xFF });
+            Actions actions;
 
             bool quit = false;
             SDL_Event e;
-            int side = 64;
-            SDL_Rect rect { (SCREEN_WIDTH - side) / 2, (SCREEN_HEIGHT - side) / 2, side, side };
 
             unsigned long frame_time = 0;
             unsigned long second_time = SDL_GetTicks();
@@ -235,18 +112,15 @@ int main(int argc, char * args[])
             int fps_counter = 0;
             int update_counter = 0;
 
-            bool actions[ACTION_COUNT];
-            actions[ACTION_UP] = false;
-            actions[ACTION_DOWN] = false;
-            actions[ACTION_LEFT] = false;
-            actions[ACTION_RIGHT] = false;
+            square.x((SCREEN_WIDTH - square.length()) / 2, SCREEN_WIDTH);
+            square.y((SCREEN_HEIGHT - square.length()) / 2, SCREEN_HEIGHT);
 
             while (!quit)
             {
                 frame_time = SDL_GetTicks();
 
                 //Handle events on queue
-                quit = input(&e, actions);
+                quit = input(&e, &actions);
 
                 //Update models logic (200Hz)
                 if ((frame_time - update_time) >= 5)
@@ -254,7 +128,7 @@ int main(int argc, char * args[])
                     ++update_counter;
                     update_time = frame_time;
 
-                    update(actions, &rect, side);
+                    update(actions, &square);
                 }
 
                 //Refresh screen (~60Hz)
@@ -264,18 +138,14 @@ int main(int argc, char * args[])
                     render_time = frame_time;
 
                     //Clear screen
-                    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                    SDL_SetRenderDrawColor(renderer, 0xcc, 0xcc, 0xcc, 0xFF);
                     SDL_RenderClear(renderer);
 
                     //Render texture to screen
-                    render(frame, renderer, false);
-                    render(carpet, renderer, false);
+                    frame.render(renderer);
+                    carpet.render(renderer);
 
-                    drawShape(
-                        rect,
-                        { 0xFF, 0x00, 0x00, 0xFF },
-                        renderer
-                    );
+                    square.render(renderer);
 
                     //Update screen
                     SDL_RenderPresent(renderer);
@@ -293,10 +163,6 @@ int main(int argc, char * args[])
                     update_counter = 0;
                 }
             }
-
-            //Deallocate textures
-            destroy(carpet);
-            destroy(frame);
 
             destroy(renderer);
         }
