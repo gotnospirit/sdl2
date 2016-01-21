@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sstream>
+#include <iostream>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -59,21 +60,21 @@ int main(int argc, char * args[])
     //Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | IMG_INIT_PNG) < 0)
     {
-        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
     }
 
     //Set texture filtering to linear
     if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
     {
-        printf("Warning: Linear texture filtering not enabled!");
+        std::cout << "Warning: Linear texture filtering not enabled!" << std::endl;
     }
 
     //Create window
     auto window = SDL_CreateWindow("fps : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window)
     {
-        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
     }
     else
     {
@@ -81,7 +82,7 @@ int main(int argc, char * args[])
         auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         if (!renderer)
         {
-            printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
+            std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         }
         else
         {
