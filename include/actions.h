@@ -16,11 +16,10 @@ class Actions
 public:
     Actions();
 
-    void keyup(SDL_Event const &);
-    void keydown(SDL_Event const &);
-
-    void buttonup(SDL_ControllerButtonEvent const &);
-    void buttondown(SDL_ControllerButtonEvent const &);
+    void moveUp(bool);
+    void moveDown(bool);
+    void moveLeft(bool);
+    void moveRight(bool);
 
     bool enabled(int) const;
 

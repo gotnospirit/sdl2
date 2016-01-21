@@ -1,5 +1,3 @@
-#include <SDL.h>
-
 #include "actions.h"
 
 Actions::Actions()
@@ -10,118 +8,24 @@ Actions::Actions()
     data[ACTION_RIGHT] = false;
 }
 
-void Actions::keydown(SDL_Event const &e)
+void Actions::moveUp(bool enabled)
 {
-    switch (e.key.keysym.sym)
-    {
-        case SDLK_UP:
-            data[ACTION_UP] = true;
-            break;
-
-        case SDLK_DOWN:
-            data[ACTION_DOWN] = true;
-            break;
-
-        case SDLK_LEFT:
-            data[ACTION_LEFT] = true;
-            break;
-
-        case SDLK_RIGHT:
-            data[ACTION_RIGHT] = true;
-            break;
-    }
+    data[ACTION_UP] = enabled;
 }
 
-void Actions::keyup(SDL_Event const &e)
+void Actions::moveDown(bool enabled)
 {
-    switch (e.key.keysym.sym)
-    {
-        case SDLK_UP:
-            data[ACTION_UP] = false;
-            break;
-
-        case SDLK_DOWN:
-            data[ACTION_DOWN] = false;
-            break;
-
-        case SDLK_LEFT:
-            data[ACTION_LEFT] = false;
-            break;
-
-        case SDLK_RIGHT:
-            data[ACTION_RIGHT] = false;
-            break;
-    }
+    data[ACTION_DOWN] = enabled;
 }
 
-void Actions::buttondown(SDL_ControllerButtonEvent const &e)
+void Actions::moveLeft(bool enabled)
 {
-    switch (e.button)
-    {
-        case SDL_CONTROLLER_BUTTON_A: // cross
-        case SDL_CONTROLLER_BUTTON_B: // circle
-        case SDL_CONTROLLER_BUTTON_X: // square
-        case SDL_CONTROLLER_BUTTON_Y: // triangle
-        case SDL_CONTROLLER_BUTTON_BACK: // select
-        case SDL_CONTROLLER_BUTTON_GUIDE: // PS
-        case SDL_CONTROLLER_BUTTON_START: // start
-        case SDL_CONTROLLER_BUTTON_LEFTSTICK: // L3
-        case SDL_CONTROLLER_BUTTON_RIGHTSTICK: // R3
-        case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: // L1
-        case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: // R1
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            data[ACTION_UP] = true;
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            data[ACTION_DOWN] = true;
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-            data[ACTION_LEFT] = true;
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-            data[ACTION_RIGHT] = true;
-            break;
-    }
+    data[ACTION_LEFT] = enabled;
 }
 
-void Actions::buttonup(SDL_ControllerButtonEvent const &e)
+void Actions::moveRight(bool enabled)
 {
-    switch (e.button)
-    {
-        case SDL_CONTROLLER_BUTTON_A: // cross
-        case SDL_CONTROLLER_BUTTON_B: // circle
-        case SDL_CONTROLLER_BUTTON_X: // square
-        case SDL_CONTROLLER_BUTTON_Y: // triangle
-        case SDL_CONTROLLER_BUTTON_BACK: // select
-        case SDL_CONTROLLER_BUTTON_GUIDE: // PS
-        case SDL_CONTROLLER_BUTTON_START: // start
-        case SDL_CONTROLLER_BUTTON_LEFTSTICK: // L3
-        case SDL_CONTROLLER_BUTTON_RIGHTSTICK: // R3
-        case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: // L1
-        case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: // R1
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            data[ACTION_UP] = false;
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            data[ACTION_DOWN] = false;
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-            data[ACTION_LEFT] = false;
-            break;
-
-        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-            data[ACTION_RIGHT] = false;
-            break;
-    }
+    data[ACTION_RIGHT] = enabled;
 }
 
 bool Actions::enabled(int type) const
