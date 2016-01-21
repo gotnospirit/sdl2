@@ -19,6 +19,9 @@ public:
     void keyup(SDL_Event const &);
     void keydown(SDL_Event const &);
 
+    void buttonup(SDL_ControllerButtonEvent const &);
+    void buttondown(SDL_ControllerButtonEvent const &);
+
     bool enabled(int) const;
 
 private:

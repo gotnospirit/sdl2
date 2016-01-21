@@ -58,7 +58,7 @@ void update(Actions const &actions, DisplayObject * o)
 int main(int argc, char * args[])
 {
     //Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO | IMG_INIT_PNG) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO | IMG_INIT_PNG | SDL_INIT_GAMECONTROLLER) < 0)
     {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return 1;

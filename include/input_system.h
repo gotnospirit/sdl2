@@ -14,6 +14,7 @@ public:
 
 private:
     SDL_Event e;
+    SDL_GameController * gamepad = nullptr;
 };
 
 #endif // _INPUT_SYSTEM_H_
