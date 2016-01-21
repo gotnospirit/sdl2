@@ -16,6 +16,8 @@ public:
     int y() const;
     int length() const;
 
+    void center(int, int);
+
     void render(SDL_Renderer *);
 
 private:

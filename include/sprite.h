@@ -7,14 +7,16 @@ class Sprite
 {
 public:
     Sprite();
-    Sprite(const char *, SDL_Renderer *);
     ~Sprite();
 
     bool load(const char *, SDL_Renderer *);
 
+    void update(int);
     void render(SDL_Renderer *);
 
-private:
+    void center(int, int);
+
+protected:
     void free();
 
     SDL_Texture * texture = nullptr;

@@ -55,6 +55,12 @@ int Square::length() const
     return rect.w;
 }
 
+void Square::center(int w, int h)
+{
+    rect.x = (w - rect.w) / 2;
+    rect.y = (h - rect.h) / 2;
+}
+
 void Square::render(SDL_Renderer * renderer)
 {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);

@@ -48,6 +48,7 @@ set(COPY_DLL
 )
 
 set(COPY_ASSETS
+    "assets/3dchip.png"
     "assets/carpet.normal.mobile.png"
     "assets/frame.big.mobile.png"
 )
@@ -64,6 +65,7 @@ add_executable(${PROJECT_NAME}
     src/sprite.cpp
     src/square.cpp
     src/actions.cpp
+    src/animated_sprite.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}

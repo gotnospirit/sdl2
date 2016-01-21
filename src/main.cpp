@@ -5,6 +5,7 @@
 #include <SDL_image.h>
 
 #include <sprite.h>
+#include <animated_sprite.h>
 #include <square.h>
 #include <actions.h>
 
@@ -72,12 +73,18 @@ void update(Actions const &actions, Square * display_object)
 
 int main(int argc, char * args[])
 {
-	//Initialize SDL
-	if (SDL_Init(SDL_INIT_VIDEO | IMG_INIT_PNG) < 0)
-	{
-		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+    //Initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO | IMG_INIT_PNG) < 0)
+    {
+        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
-	}
+    }
+
+    //Set texture filtering to linear
+    if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
+    {
+        printf("Warning: Linear texture filtering not enabled!");
+    }
 
     //Create window
     auto window = SDL_CreateWindow("fps : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
@@ -96,8 +103,15 @@ int main(int argc, char * args[])
         else
         {
             //Load media
-            Sprite carpet("carpet.normal.mobile.png", renderer);
-            Sprite frame("frame.big.mobile.png", renderer);
+            Sprite carpet;
+            carpet.load("carpet.normal.mobile.png", renderer);
+
+            Sprite frame;
+            frame.load("frame.big.mobile.png", renderer);
+
+            AnimatedSprite chips(500);
+            chips.load("3dchip.png", renderer);
+
             Square square(64, { 0xFF, 0x00, 0x00, 0xFF });
             Actions actions;
 
@@ -111,9 +125,11 @@ int main(int argc, char * args[])
 
             int fps_counter = 0;
             int update_counter = 0;
+            int dt = 0;
 
-            square.x((SCREEN_WIDTH - square.length()) / 2, SCREEN_WIDTH);
-            square.y((SCREEN_HEIGHT - square.length()) / 2, SCREEN_HEIGHT);
+            chips.clip(45, 45, false);
+            // chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
+            square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
 
             while (!quit)
             {
@@ -132,10 +148,13 @@ int main(int argc, char * args[])
                 }
 
                 //Refresh screen (~60Hz)
-                if ((frame_time - render_time) >= 16)
+                dt = frame_time - render_time;
+                if (dt >= 16)
                 {
                     ++fps_counter;
                     render_time = frame_time;
+
+                    chips.update(dt);
 
                     //Clear screen
                     SDL_SetRenderDrawColor(renderer, 0xcc, 0xcc, 0xcc, 0xFF);
@@ -144,6 +163,7 @@ int main(int argc, char * args[])
                     //Render texture to screen
                     frame.render(renderer);
                     carpet.render(renderer);
+                    chips.render(renderer);
 
                     square.render(renderer);
 

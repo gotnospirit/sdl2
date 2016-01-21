@@ -15,11 +15,10 @@ std::string getFilepath(const char * filename)
 
 Sprite::Sprite()
 {
-}
-
-Sprite::Sprite(const char * filename, SDL_Renderer * renderer)
-{
-    load(filename, renderer);
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 0;
+    rect.h = 0;
 }
 
 Sprite::~Sprite()
@@ -61,11 +60,32 @@ bool Sprite::load(const char * filename, SDL_Renderer * renderer)
     return !!texture;
 }
 
+void Sprite::update(int delta)
+{
+}
+
 void Sprite::render(SDL_Renderer * renderer)
 {
     if (texture)
     {
-        SDL_RenderCopy(renderer, texture, NULL, &rect);
+        SDL_RenderCopy(renderer, texture, &rect, &rect);
+    }
+    else
+    {
+        throw "No texture loaded!";
+    }
+}
+
+void Sprite::center(int w, int h)
+{
+    if (texture)
+    {
+        rect.x = (w - rect.w) / 2;
+        rect.y = (h - rect.h) / 2;
+    }
+    else
+    {
+        throw "No texture loaded!";
     }
 }
 
@@ -76,9 +96,4 @@ void Sprite::free()
         SDL_DestroyTexture(texture);
         texture = nullptr;
     }
-
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = 0;
-    rect.h = 0;
 }
