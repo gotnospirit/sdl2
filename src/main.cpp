@@ -6,7 +6,7 @@
 
 #include "display_object.h"
 #include "sprite.h"
-#include "animated_sprite.h"
+#include "spritesheet.h"
 #include "square.h"
 #include "actions.h"
 #include "utils.h"
@@ -111,7 +111,7 @@ int main(int argc, char * args[])
             Sprite frame;
             frame.load("frame.big.mobile.png", renderer);
 
-            AnimatedSprite chips(500);
+            Spritesheet chips(500);
             chips.load("3dchip.png", renderer);
 
             Square square(64, { 0xFF, 0x00, 0x00, 0xFF });
