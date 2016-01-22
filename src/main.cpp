@@ -4,9 +4,11 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
 
 #include "input_system.h"
 #include "actions.h"
+#include "font.h"
 #include "display_object.h"
 #include "sprite.h"
 #include "spritesheet.h"
@@ -71,6 +73,12 @@ int main(int argc, char * args[])
         return 1;
     }
 
+    if (TTF_Init() == -1)
+    {
+        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return 1;
+    }
+
     //Set texture filtering to linear
     if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
     {
@@ -116,6 +124,18 @@ int main(int argc, char * args[])
             guy.clip(0, 0, guy.getWidth(), 100);
             guy.setColor(0x00, 0x00, 0xff);
             guy.setY(SCREEN_HEIGHT - guy.getHeight());
+
+            Sprite myText;
+
+            {
+                Font ttf;
+                ttf.load("Montserrat-Regular.ttf", 16);
+
+                myText.setTexture(ttf.render("Hello James", 0, 0, 0, renderer, true));
+            }
+
+            // auto dim = ttf.measure("Hello James");
+            // std::cout << "Measure: " << dim.w << "x" << dim.h << std::endl;
 
             Actions actions;
             InputSystem input;
@@ -163,6 +183,7 @@ int main(int argc, char * args[])
 
                     square.render(renderer);
                     chips.render(renderer);
+                    myText.render(renderer);
 
                     //Update screen
                     SDL_RenderPresent(renderer);
@@ -189,6 +210,7 @@ int main(int argc, char * args[])
     }
 
 	//Quit SDL subsystems
+	TTF_Quit();
 	IMG_Quit();
 	SDL_Quit();
 

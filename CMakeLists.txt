@@ -44,7 +44,8 @@ set(COPY_DLL
     "vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.dll"
     "vendor/SDL2_image-2.0.0/lib/x86/zlib1.dll"
     "vendor/SDL2_image-2.0.0/lib/x86/libpng16-16.dll"
-    # "vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.dll"
+    "vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.dll"
+    "vendor/SDL2_ttf-2.0.13/lib/x86/libfreetype-6.dll"
 )
 
 set(COPY_ASSETS
@@ -52,13 +53,14 @@ set(COPY_ASSETS
     "assets/3dchip.png"
     "assets/carpet.normal.mobile.png"
     "assets/frame.big.mobile.png"
+    "assets/Montserrat-Regular.ttf"
 )
 
 include_directories(
     include
     vendor/SDL2-2.0.4/include
     vendor/SDL2_image-2.0.0/include
-    # vendor/SDL2_ttf-2.0.13/include
+    vendor/SDL2_ttf-2.0.13/include
 )
 
 add_executable(${PROJECT_NAME}
@@ -70,6 +72,7 @@ add_executable(${PROJECT_NAME}
     src/sprite.cpp
     src/square.cpp
     src/spritesheet.cpp
+    src/font.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
