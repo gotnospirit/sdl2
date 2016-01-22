@@ -9,6 +9,23 @@ Sprite::~Sprite()
     free();
 }
 
+void Sprite::update(int)
+{
+}
+
+void Sprite::render(SDL_Renderer * renderer)
+{
+    if (texture)
+    {
+        SDL_Rect r { x, y, width, height };
+        SDL_RenderCopy(renderer, texture, NULL, &r);
+    }
+    else
+    {
+        throw "No texture loaded!";
+    }
+}
+
 bool Sprite::load(const char * filename, SDL_Renderer * renderer)
 {
     free();
@@ -35,6 +52,7 @@ bool Sprite::load(const char * filename, SDL_Renderer * renderer)
         {
             width = loadedSurface->w;
             height = loadedSurface->h;
+            applyAlpha();
         }
 
         //Get rid of old loaded surface
@@ -43,20 +61,17 @@ bool Sprite::load(const char * filename, SDL_Renderer * renderer)
     return !!texture;
 }
 
-void Sprite::update(int)
+void Sprite::setAlpha(uint8_t value)
 {
+    DisplayObject::setAlpha(value);
+    applyAlpha();
 }
 
-void Sprite::render(SDL_Renderer * renderer)
+void Sprite::applyAlpha()
 {
     if (texture)
     {
-        SDL_Rect r { x, y, width, height };
-        SDL_RenderCopy(renderer, texture, NULL, &r);
-    }
-    else
-    {
-        throw "No texture loaded!";
+        SDL_SetTextureAlphaMod(texture, (uint8_t)(alpha * 255 / 100));
     }
 }
 

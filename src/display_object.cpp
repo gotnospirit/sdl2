@@ -5,7 +5,8 @@ DisplayObject::DisplayObject() :
     x(0),
     y(0),
     width(0),
-    height(0)
+    height(0),
+    alpha(100)
 {
 }
 
@@ -23,6 +24,11 @@ void DisplayObject::setX(int value)
 void DisplayObject::setY(int value)
 {
     y = value;
+}
+
+void DisplayObject::setAlpha(uint8_t value)
+{
+    alpha = clamp(value, 0, 100);
 }
 
 int DisplayObject::getX() const

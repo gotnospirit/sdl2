@@ -96,7 +96,8 @@ int main(int argc, char * args[])
             Spritesheet chips(500);
             chips.load("3dchip.png", renderer);
 
-            Square square(64, { 0xFF, 0x00, 0x00, 0xFF });
+            Square square(64);
+            square.setColor(0xFF, 0x00, 0x00);
 
             Actions actions;
             InputSystem input;
@@ -109,6 +110,7 @@ int main(int argc, char * args[])
             int fps_counter = 0;
             int update_counter = 0;
             int dt = 0;
+            SDL_Color bgcolor { 0xcc, 0xcc, 0xcc, 0xFF };
 
             chips.clip(45, 45, false);
             chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -137,7 +139,7 @@ int main(int argc, char * args[])
                     chips.update(dt);
 
                     //Clear screen
-                    SDL_SetRenderDrawColor(renderer, 0xcc, 0xcc, 0xcc, 0xFF);
+                    SDL_SetRenderDrawColor(renderer, bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
                     SDL_RenderClear(renderer);
 
                     //Render texture to screen
