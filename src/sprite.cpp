@@ -7,7 +7,10 @@
 #include "utils.h"
 
 Sprite::Sprite(SDL_Texture * ptr_texture) :
-    DisplayObject()
+    DisplayObject(),
+    angle(0.0),
+    pivot({ 0, 0 }),
+    has_pivot(false)
 {
     setTexture(ptr_texture);
 }
@@ -31,11 +34,12 @@ void Sprite::render(SDL_Renderer * renderer)
         {
             projection.w = clipping.w;
             projection.h = clipping.h;
-            SDL_RenderCopy(renderer, texture, &clipping, &projection);
+
+            render(renderer, &clipping, &projection);
         }
         else
         {
-            SDL_RenderCopy(renderer, texture, NULL, &projection);
+            render(renderer, NULL, &projection);
         }
     }
     else
@@ -65,6 +69,20 @@ bool Sprite::load(const char * filename, SDL_Renderer * renderer, SDL_Color cons
         setTexture(loadTexture(surface, renderer));
     }
     return !!texture;
+}
+
+void Sprite::rotate(double deg)
+{
+    angle = deg;
+    has_pivot = false;
+}
+
+void Sprite::rotate(double deg, int x, int y)
+{
+    angle = deg;
+    pivot.x = x;
+    pivot.y = y;
+    has_pivot = true;
 }
 
 void Sprite::setAlpha(uint8_t value)
@@ -125,6 +143,18 @@ SDL_Texture * Sprite::loadTexture(SDL_Surface * surface, SDL_Renderer * renderer
     //Get rid of old loaded surface
     SDL_FreeSurface(surface);
     return result;
+}
+
+void Sprite::render(SDL_Renderer * renderer, SDL_Rect const * const src, SDL_Rect const * const dest)
+{
+    if (0.0 != angle)
+    {
+        SDL_RenderCopyEx(renderer, texture, src, dest, angle, has_pivot ? &pivot : NULL, SDL_FLIP_NONE);
+    }
+    else
+    {
+        SDL_RenderCopy(renderer, texture, src, dest);
+    }
 }
 
 void Sprite::applyAlpha()
