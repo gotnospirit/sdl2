@@ -33,14 +33,14 @@ execute_process(COMMAND
 )
 
 set(SDL_LIBRARIES
-    "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.3/lib/x86/SDL2.lib"
-    "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.3/lib/x86/SDL2main.lib"
+    "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.4/lib/x86/SDL2.lib"
+    "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.4/lib/x86/SDL2main.lib"
     "${CMAKE_SOURCE_DIR}/vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.lib"
     "${CMAKE_SOURCE_DIR}/vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.lib"
 )
 
 set(COPY_DLL
-    "vendor/SDL2-2.0.3/lib/x86/SDL2.dll"
+    "vendor/SDL2-2.0.4/lib/x86/SDL2.dll"
     "vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.dll"
     "vendor/SDL2_image-2.0.0/lib/x86/zlib1.dll"
     "vendor/SDL2_image-2.0.0/lib/x86/libpng16-16.dll"
@@ -55,7 +55,7 @@ set(COPY_ASSETS
 
 include_directories(
     include
-    vendor/SDL2-2.0.3/include
+    vendor/SDL2-2.0.4/include
     vendor/SDL2_image-2.0.0/include
     # vendor/SDL2_ttf-2.0.13/include
 )
