@@ -1,9 +1,8 @@
-#include <SDL.h>
-
 #include "spritesheet.h"
 #include "utils.h"
 
 Spritesheet::Spritesheet(int duration) :
+    Sprite(),
     current_time(0),
     duration(duration),
     current_frame(0),
@@ -27,33 +26,28 @@ void Spritesheet::update(int delta)
 
 void Spritesheet::render(SDL_Renderer * renderer)
 {
-    if (texture)
+    if (horizontal)
     {
-        SDL_Rect cr { 0, 0, width, height };
-
-        if (horizontal)
-        {
-            cr.x = current_frame * width;
-        }
-        else
-        {
-            cr.y = current_frame * height;
-        }
-
-        SDL_Rect r { x, y, width, height };
-        SDL_RenderCopy(renderer, texture, &cr, &r);
+        clipping.x = current_frame * clipping.w;
+        clipping.y = 0;
     }
     else
     {
-        throw "No texture loaded!";
+        clipping.x = 0;
+        clipping.y = current_frame * clipping.h;
     }
+
+    Sprite::render(renderer);
 }
 
-void Spritesheet::clip(int w, int h, bool vertical)
+void Spritesheet::clip(int x, int y, int w, int h)
 {
     max_frames = (width / w) >> 0;
-    horizontal = !vertical;
 
-    width = w;
-    height = h;
+    Sprite::clip(x, y, w, h);
+}
+
+void Spritesheet::orientation(bool vertical)
+{
+    horizontal = !vertical;
 }

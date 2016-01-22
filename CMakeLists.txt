@@ -48,6 +48,7 @@ set(COPY_DLL
 )
 
 set(COPY_ASSETS
+    "assets/foo.png"
     "assets/3dchip.png"
     "assets/carpet.normal.mobile.png"
     "assets/frame.big.mobile.png"

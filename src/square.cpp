@@ -2,10 +2,7 @@
 #include "utils.h"
 
 Square::Square(int length) :
-    DisplayObject(),
-    r(0),
-    g(0),
-    b(0)
+    DisplayObject()
 {
     width = length;
     height = length;
@@ -23,14 +20,13 @@ void Square::render(SDL_Renderer * renderer)
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         a = alpha * 255 / 100;
     }
-    SDL_SetRenderDrawColor(renderer, r, g, b, a);
-    SDL_Rect rect { x, y, width, height };
-    SDL_RenderFillRect(renderer, &rect);
-}
+    SDL_SetRenderDrawColor(renderer, red, green, blue, a);
 
-void Square::setColor(uint8_t r, uint8_t g, uint8_t b)
-{
-    this->r = clamp(r, 0, 255);
-    this->g = clamp(g, 0, 255);
-    this->b = clamp(b, 0, 255);
+    SDL_Rect projection { x, y, width, height };
+    if (clipped())
+    {
+        projection.w = clipping.w;
+        projection.h = clipping.h;
+    }
+    SDL_RenderFillRect(renderer, &projection);
 }

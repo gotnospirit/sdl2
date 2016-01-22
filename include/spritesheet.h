@@ -14,7 +14,8 @@ public:
     void update(int);
     void render(SDL_Renderer *);
 
-    void clip(int, int, bool);
+    void clip(int, int, int, int);
+    void orientation(bool);
 
 protected:
     int current_time;

@@ -58,9 +58,16 @@ void update(Actions const &actions, DisplayObject * o)
 int main(int argc, char * args[])
 {
     //Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO | IMG_INIT_PNG | SDL_INIT_GAMECONTROLLER) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
     {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    int flags = IMG_INIT_PNG;
+    if (!(IMG_Init(flags) & flags))
+    {
+        std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
         return 1;
     }
 
@@ -95,9 +102,20 @@ int main(int argc, char * args[])
 
             Spritesheet chips(500);
             chips.load("3dchip.png", renderer);
+            chips.clip(0, 0, 45, 45);
+            chips.orientation(false);
+            chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
 
             Square square(64);
             square.setColor(0xFF, 0x00, 0x00);
+            square.clip(0, 0, square.getWidth(), square.getHeight() - 10);
+            square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            Sprite guy;
+            guy.load("foo.png", renderer, { 0, 0xFF, 0xFF });
+            guy.clip(0, 0, guy.getWidth(), 100);
+            guy.setColor(0x00, 0x00, 0xff);
+            guy.setY(SCREEN_HEIGHT - guy.getHeight());
 
             Actions actions;
             InputSystem input;
@@ -111,10 +129,6 @@ int main(int argc, char * args[])
             int update_counter = 0;
             int dt = 0;
             SDL_Color bgcolor { 0xcc, 0xcc, 0xcc, 0xFF };
-
-            chips.clip(45, 45, false);
-            chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
-            square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
 
             while (input.poll(&actions))
             {
@@ -145,6 +159,7 @@ int main(int argc, char * args[])
                     //Render texture to screen
                     frame.render(renderer);
                     carpet.render(renderer);
+                    guy.render(renderer);
 
                     square.render(renderer);
                     chips.render(renderer);
@@ -174,6 +189,7 @@ int main(int argc, char * args[])
     }
 
 	//Quit SDL subsystems
+	IMG_Quit();
 	SDL_Quit();
 
 	return 0;
