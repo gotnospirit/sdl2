@@ -22,7 +22,7 @@ void Square::render(SDL_Renderer * renderer)
     }
     SDL_SetRenderDrawColor(renderer, red, green, blue, a);
 
-    SDL_Rect projection { x, y, width, height };
+    SDL_Rect projection { position.x, position.y, width, height };
     if (clipped())
     {
         projection.w = clipping.w;

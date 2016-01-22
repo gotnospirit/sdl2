@@ -25,7 +25,7 @@ void Sprite::render(SDL_Renderer * renderer)
 {
     if (texture)
     {
-        SDL_Rect projection { x, y, width, height };
+        SDL_Rect projection { position.x, position.y, width, height };
 
         if (clipped())
         {

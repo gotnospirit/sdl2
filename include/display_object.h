@@ -30,8 +30,7 @@ public:
 protected:
     bool clipped() const;
 
-    int x;
-    int y;
+    SDL_Point position;
     int width;
     int height;
     uint8_t red;

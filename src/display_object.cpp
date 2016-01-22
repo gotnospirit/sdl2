@@ -2,8 +2,7 @@
 #include "utils.h"
 
 DisplayObject::DisplayObject() :
-    x(0),
-    y(0),
+    position({ 0, 0 }),
     width(0),
     height(0),
     red(0),
@@ -26,18 +25,18 @@ void DisplayObject::center(int container_width, int container_height)
 {
     int w = clipping.w ? clipping.w : width;
     int h = clipping.h ? clipping.h : height;
-    x = (container_width - w) / 2;
-    y = (container_height - h) / 2;
+    position.x = (container_width - w) / 2;
+    position.y = (container_height - h) / 2;
 }
 
 void DisplayObject::setX(int value)
 {
-    x = value;
+    position.x = value;
 }
 
 void DisplayObject::setY(int value)
 {
-    y = value;
+    position.y = value;
 }
 
 void DisplayObject::setAlpha(uint8_t value)
@@ -54,12 +53,12 @@ void DisplayObject::setColor(uint8_t r, uint8_t g, uint8_t b)
 
 int DisplayObject::getX() const
 {
-    return x;
+    return position.x;
 }
 
 int DisplayObject::getY() const
 {
-    return y;
+    return position.y;
 }
 
 int DisplayObject::getWidth() const
