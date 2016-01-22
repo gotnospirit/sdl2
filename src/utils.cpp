@@ -24,7 +24,7 @@ int clamp(int value, int min, int max)
     return value;
 }
 
-float linearEaseIn(float t, float b, float c, float d)
+float linearEaseIn(int t, float b, float c, int d)
 {
     return c * t / d + b;
 }

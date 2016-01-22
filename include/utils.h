@@ -7,6 +7,6 @@ std::string getFilepath(const char *);
 
 int clamp(int, int, int);
 
-float linearEaseIn(float, float, float, float);
+float linearEaseIn(int, float, float, int);
 
 #endif // _UTILS_H_
