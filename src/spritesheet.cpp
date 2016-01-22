@@ -22,7 +22,7 @@ void Spritesheet::update(int delta)
         current_time = 0;
     }
 
-    current_frame = max_frames * linearEaseIn(current_time, 0, 1, duration);
+    current_frame = (int)(max_frames * linearEaseIn(current_time, 0, 1, duration));
 }
 
 void Spritesheet::render(SDL_Renderer * renderer)
