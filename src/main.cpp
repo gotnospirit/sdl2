@@ -71,7 +71,7 @@ int main(int argc, char * args[])
     }
 
     //Create window
-    auto window = SDL_CreateWindow("fps : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    auto window = SDL_CreateWindow("Hz : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window)
     {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;

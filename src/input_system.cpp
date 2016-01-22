@@ -34,7 +34,7 @@ bool InputSystem::poll(Actions * actions)
                 {
                     if (gamepad)
                     {
-                        std::cerr << "Too many gamepad..." << std::endl;
+                        std::cerr << "Too many game controller..." << std::endl;
                     }
                     else
                     {
@@ -46,7 +46,7 @@ bool InputSystem::poll(Actions * actions)
                         }
                         else if (SDL_GameControllerGetAttached(controller))
                         {
-                            std::cout << "Controller <" << SDL_GameControllerName(controller) << "> added." << std::endl;
+                            std::cout << "Controller <" << SDL_GameControllerName(controller) << "> added" << std::endl;
                             gamepad = controller;
                         }
                     }
@@ -56,9 +56,9 @@ bool InputSystem::poll(Actions * actions)
             case SDL_CONTROLLERDEVICEREMOVED:
                 if (gamepad)
                 {
+                    std::cout << "Removing controller <" << SDL_GameControllerName(gamepad) << ">" << std::endl;
                     SDL_GameControllerClose(gamepad);
                     gamepad = nullptr;
-                    std::cout << "Controller <" << SDL_GameControllerName(gamepad) << "> removed." << std::endl;
                 }
                 break;
 
