@@ -1,8 +1,6 @@
 #ifndef _ACTIONS_H_
 #define _ACTIONS_H_
 
-#include <SDL.h>
-
 enum ACTION {
     ACTION_UP,
     ACTION_DOWN,
