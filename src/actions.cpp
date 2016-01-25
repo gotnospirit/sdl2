@@ -2,10 +2,10 @@
 
 Actions::Actions()
 {
-    data[ACTION_UP] = false;
-    data[ACTION_DOWN] = false;
-    data[ACTION_LEFT] = false;
-    data[ACTION_RIGHT] = false;
+    for (auto i = 0; i < ACTION_COUNT; ++i)
+    {
+        data[i] = false;
+    }
 }
 
 void Actions::moveUp(bool enabled)

@@ -11,7 +11,7 @@
 int main(int argc, char * args[])
 {
     //Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
@@ -28,11 +28,11 @@ int main(int argc, char * args[])
         bus.add(&input);
         bus.add(&render);
 
-        bus.dispatch("SHOW_TABLE");
-        bus.dispatch("SHOW_CHIPS");
-        bus.dispatch("SHOW_SQUARE");
-        bus.dispatch("SHOW_GUY");
-        bus.dispatch("TEXT Hello James");
+        bus.dispatch("CREATE TABLE");
+        bus.dispatch("CREATE CHIPS");
+        bus.dispatch("CREATE SQUARE");
+        bus.dispatch("CREATE GUY");
+        bus.dispatch("CREATE TEXT Hello James");
 
         while (input.poll())
         {

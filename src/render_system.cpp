@@ -40,32 +40,39 @@ bool RenderSystem::initialize()
         std::cout << "Warning: Linear texture filtering not enabled!" << std::endl;
     }
 
-    //Create window
-    window = SDL_CreateWindow("Hz : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (!window)
+    {
+        //Create window
+        window = SDL_CreateWindow("Hz : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    }
+
     if (!window)
     {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    else
+
+    if (!renderer)
     {
         //Create renderer for window
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        if (!renderer)
-        {
-            std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-            return false;
-        }
-        else
-        {
-            ttf = new Font();
+    }
 
-            if (!ttf->load("Montserrat-Regular.ttf", 16))
-            {
-                std::cerr << "Cannot load font!" << std::endl;
-                return false;
-            }
-        }
+    if (!renderer)
+    {
+        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    if (!ttf)
+    {
+        ttf = new Font();
+    }
+
+    if (!ttf->load("Montserrat-Regular.ttf", 16))
+    {
+        std::cerr << "Cannot load font!" << std::endl;
+        return false;
     }
     return true;
 }
@@ -91,34 +98,47 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::handleMessage(const char * msg, size_t msglen)
 {
-    if (0 == strcmp(msg, "SHOW_TABLE"))
+    if (0 == strncmp(msg, "CREATE ", 7))
     {
-        carpet.load("carpet.normal.mobile.png", renderer);
-        frame.load("frame.big.mobile.png", renderer);
+        if (0 == strcmp(msg + 7, "TABLE"))
+        {
+            carpet.load("carpet.normal.mobile.png", renderer);
+            frame.load("frame.big.mobile.png", renderer);
+        }
+        else if (0 == strcmp(msg + 7, "CHIPS"))
+        {
+            chips.load("3dchip.png", renderer);
+            chips.clip(0, 0, 45, 45);
+            chips.orientation(false);
+            chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
+        }
+        else if (0 == strcmp(msg + 7, "SQUARE"))
+        {
+            square.setColor(0xFF, 0x00, 0x00);
+            square.clip(0, 0, square.getWidth(), square.getHeight() - 10);
+            square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
+        }
+        else if (0 == strcmp(msg + 7, "GUY"))
+        {
+            guy.load("foo.png", renderer, { 0, 0xFF, 0xFF });
+            guy.clip(0, 0, guy.getWidth(), 100);
+            guy.setColor(0x00, 0x00, 0xff);
+            guy.setY(SCREEN_HEIGHT - guy.getHeight());
+        }
+        else if (0 == strncmp(msg + 7, "TEXT ", 5) && msglen > 12)
+        {
+            myText.setTexture(ttf->render(msg + 12, 0, 0, 0, renderer, true));
+
+            // auto dim = ttf->measure(msg + 5);
+            // std::cout << "Measure '" << (msg + 5) << "': " << dim.w << "x" << dim.h << std::endl;
+        }
     }
-    else if (0 == strcmp(msg, "SHOW_CHIPS"))
+    else if (0 == strncmp(msg, "COUNTER ", 8))
     {
-        chips.load("3dchip.png", renderer);
-        chips.clip(0, 0, 45, 45);
-        chips.orientation(false);
-        chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
-    }
-    else if (0 == strcmp(msg, "SHOW_SQUARE"))
-    {
-        square.setColor(0xFF, 0x00, 0x00);
-        square.clip(0, 0, square.getWidth(), square.getHeight() - 10);
-        square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
-    }
-    else if (0 == strcmp(msg, "SHOW_GUY"))
-    {
-        guy.load("foo.png", renderer, { 0, 0xFF, 0xFF });
-        guy.clip(0, 0, guy.getWidth(), 100);
-        guy.setColor(0x00, 0x00, 0xff);
-        guy.setY(SCREEN_HEIGHT - guy.getHeight());
-    }
-    else if (0 == strcmp(msg, "UPDATE"))
-    {
-        ++update_counter;
+        if (0 == strcmp(msg + 8, "UPDATE"))
+        {
+            ++update_counter;
+        }
     }
     else if (0 == strncmp(msg, "MOVE ", 5))
     {
@@ -180,12 +200,5 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
             //Update screen
             SDL_RenderPresent(renderer);
         }
-    }
-    else if (0 == strncmp(msg, "TEXT ", 5) && msglen > 5)
-    {
-        myText.setTexture(ttf->render(msg + 5, 0, 0, 0, renderer, true));
-
-        // auto dim = ttf->measure(msg + 5);
-        // std::cout << "Measure '" << (msg + 5) << "': " << dim.w << "x" << dim.h << std::endl;
     }
 }

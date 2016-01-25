@@ -28,7 +28,7 @@ void InputSystem::handleMessage(const char * msg, size_t msglen)
         {
             update_time = frame_time;
 
-            sendMessage("UPDATE");
+            sendMessage("COUNTER UPDATE");
 
             if (actions.enabled(ACTION_UP))
             {
