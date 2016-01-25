@@ -3,59 +3,10 @@
 #include <iostream>
 
 #include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 
+#include "message_bus.h"
 #include "input_system.h"
-#include "actions.h"
-#include "font.h"
-#include "display_object.h"
-#include "sprite.h"
-#include "spritesheet.h"
-#include "square.h"
-#include "utils.h"
-
-const int SCREEN_WIDTH = 700;
-const int SCREEN_HEIGHT = 420;
-
-void destroy(SDL_Window * ptr)
-{
-    if (ptr)
-    {
-        SDL_DestroyWindow(ptr);
-    }
-}
-
-void destroy(SDL_Renderer * ptr)
-{
-    if (ptr)
-    {
-        SDL_DestroyRenderer(ptr);
-    }
-}
-
-void update(Actions const &actions, DisplayObject * o)
-{
-    if (actions.enabled(ACTION_UP))
-    {
-        o->setY(clamp(o->getY() - 1, 0, SCREEN_HEIGHT));
-    }
-
-    if (actions.enabled(ACTION_DOWN))
-    {
-        o->setY(clamp(o->getY() + 1, 0, SCREEN_HEIGHT - o->getHeight()));
-    }
-
-    if (actions.enabled(ACTION_LEFT))
-    {
-        o->setX(clamp(o->getX() - 1, 0, SCREEN_WIDTH));
-    }
-
-    if (actions.enabled(ACTION_RIGHT))
-    {
-        o->setX(clamp(o->getX() + 1, 0, SCREEN_WIDTH - o->getWidth()));
-    }
-}
+#include "render_system.h"
 
 int main(int argc, char * args[])
 {
@@ -66,152 +17,32 @@ int main(int argc, char * args[])
         return 1;
     }
 
-    int flags = IMG_INIT_PNG;
-    if (!(IMG_Init(flags) & flags))
     {
-        std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
-        return 1;
-    }
+        MessageBus bus;
 
-    if (TTF_Init() == -1)
-    {
-        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        return 1;
-    }
+        InputSystem input(&bus);
+        RenderSystem render(&bus);
 
-    //Set texture filtering to linear
-    if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
-    {
-        std::cout << "Warning: Linear texture filtering not enabled!" << std::endl;
-    }
+        render.initialize();
 
-    //Create window
-    auto window = SDL_CreateWindow("Hz : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (!window)
-    {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-    }
-    else
-    {
-        //Create renderer for window
-        auto renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        if (!renderer)
+        bus.add(&input);
+        bus.add(&render);
+
+        bus.dispatch("SHOW_TABLE");
+        bus.dispatch("SHOW_CHIPS");
+        bus.dispatch("SHOW_SQUARE");
+        bus.dispatch("SHOW_GUY");
+        bus.dispatch("TEXT Hello James");
+
+        while (input.poll())
         {
-            std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+            std::ostringstream ss;
+            ss << "TICK " << SDL_GetTicks();
+
+            bus.dispatch(ss.str().c_str());
         }
-        else
-        {
-            //Load media
-            Sprite carpet;
-            carpet.load("carpet.normal.mobile.png", renderer);
-
-            Sprite frame;
-            frame.load("frame.big.mobile.png", renderer);
-
-            Spritesheet chips(500);
-            chips.load("3dchip.png", renderer);
-            chips.clip(0, 0, 45, 45);
-            chips.orientation(false);
-            chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-            Square square(64);
-            square.setColor(0xFF, 0x00, 0x00);
-            square.clip(0, 0, square.getWidth(), square.getHeight() - 10);
-            square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
-
-            Sprite guy;
-            guy.load("foo.png", renderer, { 0, 0xFF, 0xFF });
-            guy.clip(0, 0, guy.getWidth(), 100);
-            guy.setColor(0x00, 0x00, 0xff);
-            guy.setY(SCREEN_HEIGHT - guy.getHeight());
-
-            Sprite myText;
-
-            {
-                Font ttf;
-                ttf.load("Montserrat-Regular.ttf", 16);
-
-                myText.setTexture(ttf.render("Hello James", 0, 0, 0, renderer, true));
-            }
-
-            // auto dim = ttf.measure("Hello James");
-            // std::cout << "Measure: " << dim.w << "x" << dim.h << std::endl;
-
-            Actions actions;
-            InputSystem input;
-
-            unsigned long frame_time = 0;
-            unsigned long second_time = SDL_GetTicks();
-            unsigned long render_time = 0;
-            unsigned long update_time = 0;
-
-            int fps_counter = 0;
-            int update_counter = 0;
-            int dt = 0;
-            SDL_Color bgcolor { 0xcc, 0xcc, 0xcc, 0xFF };
-
-            while (input.poll(&actions))
-            {
-                frame_time = SDL_GetTicks();
-
-                //Update models logic (200Hz)
-                if ((frame_time - update_time) >= 5)
-                {
-                    ++update_counter;
-                    update_time = frame_time;
-
-                    update(actions, &chips);
-                }
-
-                //Refresh screen (~60Hz)
-                dt = frame_time - render_time;
-                if (dt >= 16)
-                {
-                    ++fps_counter;
-                    render_time = frame_time;
-
-                    chips.update(dt);
-
-                    //Clear screen
-                    SDL_SetRenderDrawColor(renderer, bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
-                    SDL_RenderClear(renderer);
-
-                    //Render texture to screen
-                    frame.render(renderer);
-                    carpet.render(renderer);
-                    guy.render(renderer);
-
-                    square.render(renderer);
-                    chips.render(renderer);
-                    myText.render(renderer);
-
-                    //Update screen
-                    SDL_RenderPresent(renderer);
-                }
-
-                if ((frame_time - second_time) >= 1000)
-                {
-                    second_time = frame_time;
-
-                    std::ostringstream ss;
-                    ss << "Hz : " << fps_counter << " - " << update_counter;
-
-                    SDL_SetWindowTitle(window, ss.str().c_str());
-                    fps_counter = 0;
-                    update_counter = 0;
-                }
-            }
-
-            destroy(renderer);
-        }
-
-        //Destroy window
-        destroy(window);
     }
 
-	//Quit SDL subsystems
-	TTF_Quit();
-	IMG_Quit();
 	SDL_Quit();
 
 	return 0;

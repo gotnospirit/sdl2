@@ -4,22 +4,32 @@
 #include <SDL.h>
 
 #include "actions.h"
+#include "system.h"
+#include "message_bus.h"
 
-class InputSystem
+class InputSystem :
+    public System
 {
 public:
+    InputSystem(MessageBus *);
     ~InputSystem();
 
-    bool poll(Actions *);
+    void handleMessage(const char *, size_t);
+
+    bool poll();
 
 private:
-    void keyup(Actions *, SDL_Event const &);
-    void keydown(Actions *, SDL_Event const &);
+    void keyup(SDL_Event const &);
+    void keydown(SDL_Event const &);
 
-    void buttonup(Actions *, SDL_ControllerButtonEvent const &);
-    void buttondown(Actions *, SDL_ControllerButtonEvent const &);
+    void buttonup(SDL_ControllerButtonEvent const &);
+    void buttondown(SDL_ControllerButtonEvent const &);
 
     SDL_Event e;
+    Actions actions;
+
+    unsigned long update_time = 0;
+
     SDL_GameController * gamepad = nullptr;
 };
 

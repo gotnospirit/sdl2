@@ -4,6 +4,11 @@
 
 #include "input_system.h"
 
+InputSystem::InputSystem(MessageBus * bus) :
+    System(bus)
+{
+}
+
 InputSystem::~InputSystem()
 {
     if (gamepad)
@@ -12,7 +17,43 @@ InputSystem::~InputSystem()
     }
 }
 
-bool InputSystem::poll(Actions * actions)
+void InputSystem::handleMessage(const char * msg, size_t msglen)
+{
+    if (0 == strncmp(msg, "TICK ", 5) && msglen > 5)
+    {
+        unsigned long frame_time = atoi(msg + 5);
+
+        //Update models logic (200Hz)
+        if ((frame_time - update_time) >= 5)
+        {
+            update_time = frame_time;
+
+            sendMessage("UPDATE");
+
+            if (actions.enabled(ACTION_UP))
+            {
+                sendMessage("MOVE UP");
+            }
+
+            if (actions.enabled(ACTION_DOWN))
+            {
+                sendMessage("MOVE DOWN");
+            }
+
+            if (actions.enabled(ACTION_LEFT))
+            {
+                sendMessage("MOVE LEFT");
+            }
+
+            if (actions.enabled(ACTION_RIGHT))
+            {
+                sendMessage("MOVE RIGHT");
+            }
+        }
+    }
+}
+
+bool InputSystem::poll()
 {
     while (SDL_PollEvent(&e) != 0)
     {
@@ -22,11 +63,11 @@ bool InputSystem::poll(Actions * actions)
                 return false;
 
             case SDL_KEYDOWN:
-                keydown(actions, e);
+                keydown(e);
                 break;
 
             case SDL_KEYUP:
-                keyup(actions, e);
+                keyup(e);
                 break;
 
             case SDL_CONTROLLERDEVICEADDED:
@@ -63,62 +104,62 @@ bool InputSystem::poll(Actions * actions)
                 break;
 
             case SDL_CONTROLLERBUTTONDOWN:
-                buttondown(actions, e.cbutton);
+                buttondown(e.cbutton);
                 break;
 
             case SDL_CONTROLLERBUTTONUP:
-                buttonup(actions, e.cbutton);
+                buttonup(e.cbutton);
                 break;
         }
     }
     return true;
 }
 
-void InputSystem::keyup(Actions * actions, SDL_Event const &e)
+void InputSystem::keyup(SDL_Event const &e)
 {
     switch (e.key.keysym.sym)
     {
         case SDLK_UP:
-            actions->moveUp(false);
+            actions.moveUp(false);
             break;
 
         case SDLK_DOWN:
-            actions->moveDown(false);
+            actions.moveDown(false);
             break;
 
         case SDLK_LEFT:
-            actions->moveLeft(false);
+            actions.moveLeft(false);
             break;
 
         case SDLK_RIGHT:
-            actions->moveRight(false);
+            actions.moveRight(false);
             break;
     }
 }
 
-void InputSystem::keydown(Actions * actions, SDL_Event const &e)
+void InputSystem::keydown(SDL_Event const &e)
 {
     switch (e.key.keysym.sym)
     {
         case SDLK_UP:
-            actions->moveUp(true);
+            actions.moveUp(true);
             break;
 
         case SDLK_DOWN:
-            actions->moveDown(true);
+            actions.moveDown(true);
             break;
 
         case SDLK_LEFT:
-            actions->moveLeft(true);
+            actions.moveLeft(true);
             break;
 
         case SDLK_RIGHT:
-            actions->moveRight(true);
+            actions.moveRight(true);
             break;
     }
 }
 
-void InputSystem::buttonup(Actions * actions, SDL_ControllerButtonEvent const &e)
+void InputSystem::buttonup(SDL_ControllerButtonEvent const &e)
 {
     switch (e.button)
     {
@@ -136,24 +177,24 @@ void InputSystem::buttonup(Actions * actions, SDL_ControllerButtonEvent const &e
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            actions->moveUp(false);
+            actions.moveUp(false);
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            actions->moveDown(false);
+            actions.moveDown(false);
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-            actions->moveLeft(false);
+            actions.moveLeft(false);
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-            actions->moveRight(false);
+            actions.moveRight(false);
             break;
     }
 }
 
-void InputSystem::buttondown(Actions * actions, SDL_ControllerButtonEvent const &e)
+void InputSystem::buttondown(SDL_ControllerButtonEvent const &e)
 {
     switch (e.button)
     {
@@ -171,19 +212,19 @@ void InputSystem::buttondown(Actions * actions, SDL_ControllerButtonEvent const 
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            actions->moveUp(true);
+            actions.moveUp(true);
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            actions->moveDown(true);
+            actions.moveDown(true);
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-            actions->moveLeft(true);
+            actions.moveLeft(true);
             break;
 
         case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-            actions->moveRight(true);
+            actions.moveRight(true);
             break;
     }
 }
