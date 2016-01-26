@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "message_bus.h"
 #include "system.h"
 
@@ -36,7 +38,7 @@ void MessageBus::remove(System * o)
 
 void MessageBus::dispatch(const char * msg) const
 {
-    size_t msglen = strlen(msg);
+    auto const msglen = strlen(msg);
     for (auto system : systems)
     {
         system->handleMessage(msg, msglen);

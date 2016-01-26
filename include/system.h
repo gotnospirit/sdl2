@@ -1,6 +1,8 @@
 #ifndef _SYSTEM_H_
 #define _SYSTEM_H_
 
+#include <cstdlib>
+
 #include "message_bus.h"
 
 class System

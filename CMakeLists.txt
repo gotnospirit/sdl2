@@ -23,6 +23,11 @@ if (MSVC)
         -D_CRT_SECURE_NO_WARNINGS
         -DNODEFAULTLIB:msvcrt
     )
+else ()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=c++11")
+
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 endif ()
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
@@ -32,21 +37,37 @@ execute_process(COMMAND
     ${CMAKE_COMMAND} -E remove_directory ${EXECUTABLE_OUTPUT_PATH}
 )
 
-set(SDL_LIBRARIES
-    "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.4/lib/x86/SDL2.lib"
-    "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.4/lib/x86/SDL2main.lib"
-    "${CMAKE_SOURCE_DIR}/vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.lib"
-    "${CMAKE_SOURCE_DIR}/vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.lib"
-)
+if (MSVC)
+    set(SDL_LIBRARIES
+        "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.4/lib/x86/SDL2.lib"
+        "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.4/lib/x86/SDL2main.lib"
+        "${CMAKE_SOURCE_DIR}/vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.lib"
+        "${CMAKE_SOURCE_DIR}/vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.lib"
+    )
 
-set(COPY_DLL
-    "vendor/SDL2-2.0.4/lib/x86/SDL2.dll"
-    "vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.dll"
-    "vendor/SDL2_image-2.0.0/lib/x86/zlib1.dll"
-    "vendor/SDL2_image-2.0.0/lib/x86/libpng16-16.dll"
-    "vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.dll"
-    "vendor/SDL2_ttf-2.0.13/lib/x86/libfreetype-6.dll"
-)
+    set(COPY_DLL
+        "vendor/SDL2-2.0.4/lib/x86/SDL2.dll"
+        "vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.dll"
+        "vendor/SDL2_image-2.0.0/lib/x86/zlib1.dll"
+        "vendor/SDL2_image-2.0.0/lib/x86/libpng16-16.dll"
+        "vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.dll"
+        "vendor/SDL2_ttf-2.0.13/lib/x86/libfreetype-6.dll"
+    )
+else ()
+    include(FindPkgConfig)
+
+    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
+    PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+    PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
+
+    include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS})
+
+    set(SDL_LIBRARIES
+        ${SDL2_LIBRARIES}
+        ${SDL2IMAGE_LIBRARIES}
+        ${SDL2TTF_LIBRARIES}
+    )
+endif ()
 
 set(COPY_ASSETS
     "assets/foo.png"

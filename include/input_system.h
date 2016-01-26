@@ -1,6 +1,8 @@
 #ifndef _INPUT_SYSTEM_H_
 #define _INPUT_SYSTEM_H_
 
+#include <cstdlib>
+
 #include <SDL.h>
 
 #include "actions.h"

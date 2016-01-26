@@ -13,6 +13,10 @@ DisplayObject::DisplayObject() :
 {
 }
 
+DisplayObject::~DisplayObject()
+{
+}
+
 void DisplayObject::clip(int x, int y, int w, int h)
 {
     clipping.x = x;

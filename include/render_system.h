@@ -1,6 +1,8 @@
 #ifndef _RENDER_SYSTEM_H_
 #define _RENDER_SYSTEM_H_
 
+#include <cstdlib>
+
 #include <SDL.h>
 
 #include "system.h"

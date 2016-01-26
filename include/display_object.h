@@ -9,6 +9,7 @@ class DisplayObject
 {
 public:
     DisplayObject();
+    virtual ~DisplayObject();
 
     virtual void update(int) = 0;
     virtual void render(SDL_Renderer *) = 0;
