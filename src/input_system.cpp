@@ -34,22 +34,22 @@ void InputSystem::handleMessage(const char * msg, size_t msglen)
 
             if (actions.enabled(ACTION_UP))
             {
-                sendMessage("MOVE UP");
+                sendMessage("ACTION MOVE UP");
             }
 
             if (actions.enabled(ACTION_DOWN))
             {
-                sendMessage("MOVE DOWN");
+                sendMessage("ACTION MOVE DOWN");
             }
 
             if (actions.enabled(ACTION_LEFT))
             {
-                sendMessage("MOVE LEFT");
+                sendMessage("ACTION MOVE LEFT");
             }
 
             if (actions.enabled(ACTION_RIGHT))
             {
-                sendMessage("MOVE RIGHT");
+                sendMessage("ACTION MOVE RIGHT");
             }
         }
     }

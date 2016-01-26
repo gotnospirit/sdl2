@@ -7,6 +7,9 @@
 #include <SDL_ttf.h>
 
 #include "render_system.h"
+#include "sprite.h"
+#include "spritesheet.h"
+#include "square.h"
 #include "utils.h"
 
 const int SCREEN_WIDTH = 700;
@@ -14,8 +17,6 @@ const int SCREEN_HEIGHT = 420;
 
 RenderSystem::RenderSystem(MessageBus * bus) :
     System(bus),
-    chips(500),
-    square(64),
     bgcolor({ 0xcc, 0xcc, 0xcc, 0xFF })
 {
 }
@@ -80,6 +81,11 @@ bool RenderSystem::initialize()
 
 RenderSystem::~RenderSystem()
 {
+    for (auto &object : objects)
+    {
+        delete object;
+    }
+
     delete ttf;
 
     if (renderer)
@@ -103,32 +109,47 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
     {
         if (0 == strcmp(msg + 7, "TABLE"))
         {
-            carpet.load("carpet.normal.mobile.png", renderer);
-            frame.load("frame.big.mobile.png", renderer);
+            auto frame = new Sprite();
+            frame->load("frame.big.mobile.png", renderer);
+            objects.push_back(frame);
+
+            auto carpet = new Sprite();
+            carpet->load("carpet.normal.mobile.png", renderer);
+            objects.push_back(carpet);
         }
         else if (0 == strcmp(msg + 7, "CHIPS"))
         {
-            chips.load("3dchip.png", renderer);
-            chips.clip(0, 0, 45, 45);
-            chips.orientation(false);
-            chips.center(SCREEN_WIDTH, SCREEN_HEIGHT);
+            auto chips = new Spritesheet(500);
+            chips->load("3dchip.png", renderer);
+            chips->clip(0, 0, 45, 45);
+            chips->orientation(false);
+            chips->center(SCREEN_WIDTH, SCREEN_HEIGHT);
+            objects.push_back(chips);
+
+            target = chips;
         }
         else if (0 == strcmp(msg + 7, "SQUARE"))
         {
-            square.setColor(0xFF, 0x00, 0x00);
-            square.clip(0, 0, square.getWidth(), square.getHeight() - 10);
-            square.center(SCREEN_WIDTH, SCREEN_HEIGHT);
+            auto square = new Square(64);
+            square->setColor(0xFF, 0x00, 0x00);
+            square->clip(0, 0, square->getWidth(), square->getHeight() - 10);
+            square->center(SCREEN_WIDTH, SCREEN_HEIGHT);
+            objects.push_back(square);
         }
         else if (0 == strcmp(msg + 7, "GUY"))
         {
-            guy.load("foo.png", renderer, { 0, 0xFF, 0xFF });
-            guy.clip(0, 0, guy.getWidth(), 100);
-            guy.setColor(0x00, 0x00, 0xff);
-            guy.setY(SCREEN_HEIGHT - guy.getHeight());
+            auto guy = new Sprite();
+            guy->load("foo.png", renderer, { 0, 0xFF, 0xFF });
+            guy->clip(0, 0, guy->getWidth(), 100);
+            guy->setColor(0x00, 0x00, 0xff);
+            guy->setY(SCREEN_HEIGHT - guy->getHeight());
+            objects.push_back(guy);
         }
         else if (0 == strncmp(msg + 7, "TEXT ", 5) && msglen > 12)
         {
-            myText.setTexture(ttf->render(msg + 12, 0, 0, 0, renderer, true));
+            auto myText = new Sprite();
+            myText->setTexture(ttf->render(msg + 12, 0, 0, 0, renderer, true));
+            objects.push_back(myText);
 
             // auto dim = ttf->measure(msg + 5);
             // std::cout << "Measure '" << (msg + 5) << "': " << dim.w << "x" << dim.h << std::endl;
@@ -141,23 +162,26 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
             ++update_counter;
         }
     }
-    else if (0 == strncmp(msg, "MOVE ", 5))
+    else if (0 == strncmp(msg, "ACTION MOVE ", 12))
     {
-        if (0 == strncmp(msg + 5, "UP", 2))
+        if (target)
         {
-            chips.setY(clamp(chips.getY() - 1, 0, SCREEN_HEIGHT));
-        }
-        else if (0 == strncmp(msg + 5, "DOWN", 4))
-        {
-            chips.setY(clamp(chips.getY() + 1, 0, SCREEN_HEIGHT - chips.getHeight()));
-        }
-        else if (0 == strncmp(msg + 5, "LEFT", 4))
-        {
-            chips.setX(clamp(chips.getX() - 1, 0, SCREEN_WIDTH));
-        }
-        else if (0 == strncmp(msg + 5, "RIGHT", 5))
-        {
-            chips.setX(clamp(chips.getX() + 1, 0, SCREEN_WIDTH - chips.getWidth()));
+            if (0 == strncmp(msg + 12, "UP", 2))
+            {
+                target->setY(clamp(target->getY() - 1, 0, SCREEN_HEIGHT));
+            }
+            else if (0 == strncmp(msg + 12, "DOWN", 4))
+            {
+                target->setY(clamp(target->getY() + 1, 0, SCREEN_HEIGHT - target->getHeight()));
+            }
+            else if (0 == strncmp(msg + 12, "LEFT", 4))
+            {
+                target->setX(clamp(target->getX() - 1, 0, SCREEN_WIDTH));
+            }
+            else if (0 == strncmp(msg + 12, "RIGHT", 5))
+            {
+                target->setX(clamp(target->getX() + 1, 0, SCREEN_WIDTH - target->getWidth()));
+            }
         }
     }
     else if (0 == strncmp(msg, "TICK ", 5) && msglen > 5)
@@ -183,20 +207,21 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
             ++fps_counter;
             render_time = frame_time;
 
-            chips.update(dt);
+            //Update textures
+            for (auto &object : objects)
+            {
+                object->update(dt);
+            }
 
             //Clear screen
             SDL_SetRenderDrawColor(renderer, bgcolor.r, bgcolor.g, bgcolor.b, bgcolor.a);
             SDL_RenderClear(renderer);
 
-            //Render texture to screen
-            frame.render(renderer);
-            carpet.render(renderer);
-            guy.render(renderer);
-
-            square.render(renderer);
-            chips.render(renderer);
-            myText.render(renderer);
+            //Render textures to screen
+            for (auto &object : objects)
+            {
+                object->render(renderer);
+            }
 
             //Update screen
             SDL_RenderPresent(renderer);

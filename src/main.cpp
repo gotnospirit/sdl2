@@ -29,9 +29,9 @@ int main(int argc, char * args[])
         bus.add(&render);
 
         bus.dispatch("CREATE TABLE");
-        bus.dispatch("CREATE CHIPS");
         bus.dispatch("CREATE SQUARE");
         bus.dispatch("CREATE GUY");
+        bus.dispatch("CREATE CHIPS");
         bus.dispatch("CREATE TEXT Hello James");
 
         while (input.poll())

@@ -2,16 +2,14 @@
 #define _RENDER_SYSTEM_H_
 
 #include <cstdlib>
+#include <vector>
 
 #include <SDL.h>
 
 #include "system.h"
 #include "message_bus.h"
-
-#include "sprite.h"
-#include "spritesheet.h"
-#include "square.h"
 #include "font.h"
+#include "display_object.h"
 
 class RenderSystem :
     public System
@@ -31,12 +29,8 @@ private:
 
     SDL_Color bgcolor;
 
-    Sprite carpet;
-    Sprite frame;
-    Spritesheet chips;
-    Square square;
-    Sprite guy;
-    Sprite myText;
+    std::vector<DisplayObject *> objects;
+    DisplayObject * target = nullptr;
 
     int fps_counter = 0;
     int update_counter = 0;
