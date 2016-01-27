@@ -9,17 +9,19 @@ class Spritesheet :
     public Sprite
 {
 public:
-    Spritesheet(int);
+    Spritesheet();
 
     void update(int);
     void render(SDL_Renderer *);
+
+    void duration(int);
 
     void clip(int, int, int, int);
     void orientation(bool);
 
 protected:
     int current_time;
-    int duration;
+    int max_time;
     int current_frame;
     int max_frames;
     bool horizontal;

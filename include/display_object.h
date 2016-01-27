@@ -18,22 +18,20 @@ public:
 
     void center(int, int);
 
-    void setX(int);
-    void setY(int);
-    void setAlpha(uint8_t); // percent
-    void setColor(uint8_t, uint8_t, uint8_t);
+    void x(int);
+    void y(int);
+    void opacity(uint8_t); // percent
+    void color(uint8_t, uint8_t, uint8_t);
 
-    int getX() const;
-    int getY() const;
-    int getWidth() const;
-    int getHeight() const;
+    int x() const;
+    int y() const;
+    int width() const;
+    int height() const;
 
 protected:
     bool clipped() const;
 
-    SDL_Point position;
-    int width;
-    int height;
+    SDL_Rect rect;
     uint8_t red;
     uint8_t green;
     uint8_t blue;

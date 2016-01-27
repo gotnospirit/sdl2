@@ -11,10 +11,12 @@ class Square :
     public DisplayObject
 {
 public:
-    Square(int);
+    Square();
 
     void update(int);
     void render(SDL_Renderer *);
+
+    void size(int);
 };
 
 #endif // _SQUARE_H_

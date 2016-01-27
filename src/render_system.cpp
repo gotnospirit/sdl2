@@ -119,7 +119,8 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
         }
         else if (0 == strcmp(msg + 7, "CHIPS"))
         {
-            auto chips = new Spritesheet(500);
+            auto chips = new Spritesheet();
+            chips->duration(500);
             chips->load("3dchip.png", renderer);
             chips->clip(0, 0, 45, 45);
             chips->orientation(false);
@@ -130,9 +131,10 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
         }
         else if (0 == strcmp(msg + 7, "SQUARE"))
         {
-            auto square = new Square(64);
-            square->setColor(0xFF, 0x00, 0x00);
-            square->clip(0, 0, square->getWidth(), square->getHeight() - 10);
+            auto square = new Square();
+            square->size(64);
+            square->color(0xFF, 0x00, 0x00);
+            square->clip(0, 0, square->width(), square->height() - 10);
             square->center(SCREEN_WIDTH, SCREEN_HEIGHT);
             objects.push_back(square);
         }
@@ -140,9 +142,9 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
         {
             auto guy = new Sprite();
             guy->load("foo.png", renderer, { 0, 0xFF, 0xFF });
-            guy->clip(0, 0, guy->getWidth(), 100);
-            guy->setColor(0x00, 0x00, 0xff);
-            guy->setY(SCREEN_HEIGHT - guy->getHeight());
+            guy->clip(0, 0, guy->width(), 100);
+            guy->color(0x00, 0x00, 0xff);
+            guy->y(SCREEN_HEIGHT - guy->height());
             objects.push_back(guy);
         }
         else if (0 == strncmp(msg + 7, "TEXT ", 5) && msglen > 12)
@@ -168,19 +170,19 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
         {
             if (0 == strncmp(msg + 12, "UP", 2))
             {
-                target->setY(clamp(target->getY() - 1, 0, SCREEN_HEIGHT));
+                target->y(clamp(target->y() - 1, 0, SCREEN_HEIGHT));
             }
             else if (0 == strncmp(msg + 12, "DOWN", 4))
             {
-                target->setY(clamp(target->getY() + 1, 0, SCREEN_HEIGHT - target->getHeight()));
+                target->y(clamp(target->y() + 1, 0, SCREEN_HEIGHT - target->height()));
             }
             else if (0 == strncmp(msg + 12, "LEFT", 4))
             {
-                target->setX(clamp(target->getX() - 1, 0, SCREEN_WIDTH));
+                target->x(clamp(target->x() - 1, 0, SCREEN_WIDTH));
             }
             else if (0 == strncmp(msg + 12, "RIGHT", 5))
             {
-                target->setX(clamp(target->getX() + 1, 0, SCREEN_WIDTH - target->getWidth()));
+                target->x(clamp(target->x() + 1, 0, SCREEN_WIDTH - target->width()));
             }
         }
     }

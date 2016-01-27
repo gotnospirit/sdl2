@@ -1,11 +1,9 @@
 #include "square.h"
 #include "utils.h"
 
-Square::Square(int length) :
+Square::Square() :
     DisplayObject()
 {
-    width = length;
-    height = length;
 }
 
 void Square::update(int)
@@ -22,11 +20,19 @@ void Square::render(SDL_Renderer * renderer)
     }
     SDL_SetRenderDrawColor(renderer, red, green, blue, a);
 
-    SDL_Rect projection { position.x, position.y, width, height };
     if (clipped())
     {
-        projection.w = clipping.w;
-        projection.h = clipping.h;
+        SDL_Rect projection { rect.x, rect.y, clipping.w, clipping.h };
+        SDL_RenderFillRect(renderer, &projection);
     }
-    SDL_RenderFillRect(renderer, &projection);
+    else
+    {
+        SDL_RenderFillRect(renderer, &rect);
+    }
+}
+
+void Square::size(int length)
+{
+    rect.w = length;
+    rect.h = length;
 }

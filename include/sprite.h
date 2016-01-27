@@ -23,8 +23,9 @@ public:
     void rotate(double);
     void rotate(double, int, int);
 
-    void setAlpha(uint8_t); // percent
-    void setColor(uint8_t, uint8_t, uint8_t);
+    void opacity(uint8_t); // percent
+    void color(uint8_t, uint8_t, uint8_t);
+
     void setTexture(SDL_Texture *);
 
 protected:

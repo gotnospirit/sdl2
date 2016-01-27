@@ -28,18 +28,14 @@ void Sprite::render(SDL_Renderer * renderer)
 {
     if (texture)
     {
-        SDL_Rect projection { position.x, position.y, width, height };
-
         if (clipped())
         {
-            projection.w = clipping.w;
-            projection.h = clipping.h;
-
+            SDL_Rect projection { rect.x, rect.y, clipping.w, clipping.h };
             render(renderer, &clipping, &projection);
         }
         else
         {
-            render(renderer, NULL, &projection);
+            render(renderer, NULL, &rect);
         }
     }
     else
@@ -85,15 +81,15 @@ void Sprite::rotate(double deg, int x, int y)
     has_pivot = true;
 }
 
-void Sprite::setAlpha(uint8_t value)
+void Sprite::opacity(uint8_t value)
 {
-    DisplayObject::setAlpha(value);
+    DisplayObject::opacity(value);
     applyAlpha();
 }
 
-void Sprite::setColor(uint8_t r, uint8_t g, uint8_t b)
+void Sprite::color(uint8_t r, uint8_t g, uint8_t b)
 {
-    DisplayObject::setColor(r, g, b);
+    DisplayObject::color(r, g, b);
 
     if (texture)
     {
@@ -108,7 +104,7 @@ void Sprite::setTexture(SDL_Texture * ptr_texture)
         free();
 
         texture = ptr_texture;
-        SDL_QueryTexture(ptr_texture, NULL, NULL, &width, &height);
+        SDL_QueryTexture(ptr_texture, NULL, NULL, &rect.w, &rect.h);
 
         if (100 != alpha)
         {

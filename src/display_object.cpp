@@ -2,9 +2,7 @@
 #include "utils.h"
 
 DisplayObject::DisplayObject() :
-    position({ 0, 0 }),
-    width(0),
-    height(0),
+    rect({ 0, 0, 0, 0 }),
     red(0),
     green(0),
     blue(0),
@@ -27,52 +25,50 @@ void DisplayObject::clip(int x, int y, int w, int h)
 
 void DisplayObject::center(int container_width, int container_height)
 {
-    int w = clipping.w ? clipping.w : width;
-    int h = clipping.h ? clipping.h : height;
-    position.x = (container_width - w) / 2;
-    position.y = (container_height - h) / 2;
+    rect.x = (container_width - width()) / 2;
+    rect.y = (container_height - height()) / 2;
 }
 
-void DisplayObject::setX(int value)
+void DisplayObject::x(int value)
 {
-    position.x = value;
+    rect.x = value;
 }
 
-void DisplayObject::setY(int value)
+void DisplayObject::y(int value)
 {
-    position.y = value;
+    rect.y = value;
 }
 
-void DisplayObject::setAlpha(uint8_t value)
+void DisplayObject::opacity(uint8_t value)
 {
     alpha = clamp(value, 0, 100);
 }
 
-void DisplayObject::setColor(uint8_t r, uint8_t g, uint8_t b)
+void DisplayObject::color(uint8_t r, uint8_t g, uint8_t b)
 {
     red = r;
     green = g;
     blue = b;
 }
 
-int DisplayObject::getX() const
+int DisplayObject::x() const
 {
-    return position.x;
+    return rect.x;
 }
 
-int DisplayObject::getY() const
+int DisplayObject::y() const
 {
-    return position.y;
+    return rect.y;
 }
 
-int DisplayObject::getWidth() const
+int DisplayObject::width() const
 {
-    return clipping.w ? clipping.w : width;
+    return clipping.w ? clipping.w : rect.w;
 }
 
-int DisplayObject::getHeight() const
+int DisplayObject::height() const
 {
-    return clipping.h ? clipping.h : height;
+    return clipping.h ? clipping.h : rect.h;
 }
 
 bool DisplayObject::clipped() const
