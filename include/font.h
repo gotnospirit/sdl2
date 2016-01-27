@@ -2,6 +2,7 @@
 #define _FONT_H_
 
 #include <cstdint>
+#include <unordered_map>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -11,15 +12,13 @@ class Font
 public:
     ~Font();
 
-    bool load(const char *, int);
-
-    SDL_Texture * render(const char *, uint8_t, uint8_t, uint8_t, SDL_Renderer *, bool) const;
-    SDL_Rect measure(const char *) const;
+    SDL_Texture * render(const char *, uint8_t, uint8_t, uint8_t, const char *, int, SDL_Renderer *, bool);
+    SDL_Rect measure(const char *, const char *, int);
 
 private:
-    void free();
+    TTF_Font * load(const char *, int);
 
-    TTF_Font * font = nullptr;
+    std::unordered_map<std::string, TTF_Font *> fonts;
 };
 
 #endif // _FONT_H_

@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <sstream>
 #include <iostream>
 
 #include <SDL.h>
@@ -23,23 +22,15 @@ int main(int argc, char * args[])
         InputSystem input(&bus);
         RenderSystem render(&bus);
 
-        render.initialize();
-
-        bus.add(&input);
-        bus.add(&render);
-
         bus.dispatch("CREATE TABLE");
         bus.dispatch("CREATE SQUARE");
         bus.dispatch("CREATE GUY");
         bus.dispatch("CREATE CHIPS");
-        bus.dispatch("CREATE TEXT Hello James");
+        bus.dispatch("CREATE TEXT", (void *)"Hello James");
 
         while (input.poll())
         {
-            std::ostringstream ss;
-            ss << "TICK " << SDL_GetTicks();
-
-            bus.dispatch(ss.str().c_str());
+            bus.dispatch("TICK", (void *)(uintptr_t)SDL_GetTicks());
         }
     }
 

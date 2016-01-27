@@ -1,16 +1,17 @@
 #include "system.h"
 
 System::System(MessageBus * bus) :
-    mbus(bus)
+    bus(bus)
 {
+    bus->attach(this);
 }
 
 System::~System()
 {
-    mbus->remove(this);
+    bus->detach(this);
 }
 
-void System::sendMessage(const char * msg)
+void System::sendMessage(const char * type, void * data)
 {
-    mbus->dispatch(msg);
+    bus->dispatch(type, data);
 }

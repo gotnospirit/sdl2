@@ -1,9 +1,13 @@
-#include <cstring>
-
 #include "message_bus.h"
 #include "system.h"
 
-void MessageBus::add(System * o)
+Message::Message(const char * type, void * data) :
+    type(type),
+    data(data)
+{
+}
+
+void MessageBus::attach(System * o)
 {
     bool found = false;
     for (auto system : systems)
@@ -21,7 +25,7 @@ void MessageBus::add(System * o)
     }
 }
 
-void MessageBus::remove(System * o)
+void MessageBus::detach(System * o)
 {
     for (auto iter = systems.begin(); iter != systems.end();)
     {
@@ -36,11 +40,12 @@ void MessageBus::remove(System * o)
     }
 }
 
-void MessageBus::dispatch(const char * msg) const
+void MessageBus::dispatch(const char * type, void * data) const
 {
-    auto const msglen = strlen(msg);
+    Message msg(type, data);
+
     for (auto system : systems)
     {
-        system->handleMessage(msg, msglen);
+        system->handleMessage(msg);
     }
 }

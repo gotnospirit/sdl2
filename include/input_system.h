@@ -1,13 +1,11 @@
 #ifndef _INPUT_SYSTEM_H_
 #define _INPUT_SYSTEM_H_
 
-#include <cstdlib>
-
 #include <SDL.h>
 
-#include "actions.h"
 #include "system.h"
 #include "message_bus.h"
+#include "actions.h"
 
 class InputSystem :
     public System
@@ -16,7 +14,7 @@ public:
     InputSystem(MessageBus *);
     ~InputSystem();
 
-    void handleMessage(const char *, size_t);
+    void handleMessage(Message const &);
 
     bool poll();
 

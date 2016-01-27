@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <cstring>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -19,21 +18,15 @@ RenderSystem::RenderSystem(MessageBus * bus) :
     System(bus),
     bgcolor({ 0xcc, 0xcc, 0xcc, 0xFF })
 {
-}
-
-bool RenderSystem::initialize()
-{
     int flags = IMG_INIT_PNG;
     if (!(IMG_Init(flags) & flags))
     {
-        std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
-        return false;
+        throw IMG_GetError();
     }
 
     if (TTF_Init() == -1)
     {
-        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        return false;
+        throw TTF_GetError();
     }
 
     //Set texture filtering to linear
@@ -42,41 +35,21 @@ bool RenderSystem::initialize()
         std::cout << "Warning: Linear texture filtering not enabled!" << std::endl;
     }
 
+    //Create window
+    window = SDL_CreateWindow("Hz : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (!window)
     {
-        //Create window
-        window = SDL_CreateWindow("Hz : n/a", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        throw SDL_GetError();
     }
 
-    if (!window)
-    {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
+    //Create renderer for window
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (!renderer)
     {
-        //Create renderer for window
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        throw SDL_GetError();
     }
 
-    if (!renderer)
-    {
-        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    if (!ttf)
-    {
-        ttf = new Font();
-    }
-
-    if (!ttf->load("Montserrat-Regular.ttf", 16))
-    {
-        std::cerr << "Cannot load font!" << std::endl;
-        return false;
-    }
-    return true;
+    ttf = new Font();
 }
 
 RenderSystem::~RenderSystem()
@@ -86,7 +59,10 @@ RenderSystem::~RenderSystem()
         delete object;
     }
 
-    delete ttf;
+    if (ttf)
+    {
+        delete ttf;
+    }
 
     if (renderer)
     {
@@ -103,33 +79,50 @@ RenderSystem::~RenderSystem()
 	IMG_Quit();
 }
 
-void RenderSystem::handleMessage(const char * msg, size_t msglen)
+void RenderSystem::handleMessage(Message const &msg)
 {
-    if (0 == strncmp(msg, "CREATE ", 7))
+    if (0 == strncmp(msg.type, "CREATE ", 7))
     {
-        if (0 == strcmp(msg + 7, "TABLE"))
+        if (0 == strcmp(msg.type + 7, "TABLE"))
         {
             auto frame = new Sprite();
-            frame->load("frame.big.mobile.png", renderer);
-            objects.push_back(frame);
+            if (frame->load("frame.big.mobile.png", renderer))
+            {
+                objects.push_back(frame);
+            }
+            else
+            {
+                delete frame;
+            }
 
             auto carpet = new Sprite();
-            carpet->load("carpet.normal.mobile.png", renderer);
-            objects.push_back(carpet);
+            if (carpet->load("carpet.normal.mobile.png", renderer))
+            {
+                objects.push_back(carpet);
+            }
+            else
+            {
+                delete carpet;
+            }
         }
-        else if (0 == strcmp(msg + 7, "CHIPS"))
+        else if (0 == strcmp(msg.type + 7, "CHIPS"))
         {
             auto chips = new Spritesheet();
-            chips->duration(500);
-            chips->load("3dchip.png", renderer);
-            chips->clip(0, 0, 45, 45);
-            chips->orientation(false);
-            chips->center(SCREEN_WIDTH, SCREEN_HEIGHT);
-            objects.push_back(chips);
-
-            target = chips;
+            if (chips->load("3dchip.png", renderer))
+            {
+                chips->duration(500);
+                chips->clip(0, 0, 45, 45);
+                chips->orientation(false);
+                chips->center(SCREEN_WIDTH, SCREEN_HEIGHT);
+                objects.push_back(chips);
+                target = chips;
+            }
+            else
+            {
+                delete chips;
+            }
         }
-        else if (0 == strcmp(msg + 7, "SQUARE"))
+        else if (0 == strcmp(msg.type + 7, "SQUARE"))
         {
             auto square = new Square();
             square->size(64);
@@ -138,57 +131,68 @@ void RenderSystem::handleMessage(const char * msg, size_t msglen)
             square->center(SCREEN_WIDTH, SCREEN_HEIGHT);
             objects.push_back(square);
         }
-        else if (0 == strcmp(msg + 7, "GUY"))
+        else if (0 == strcmp(msg.type + 7, "GUY"))
         {
             auto guy = new Sprite();
-            guy->load("foo.png", renderer, { 0, 0xFF, 0xFF });
-            guy->clip(0, 0, guy->width(), 100);
-            guy->color(0x00, 0x00, 0xff);
-            guy->y(SCREEN_HEIGHT - guy->height());
-            objects.push_back(guy);
+            if (guy->load("foo.png", renderer, { 0, 0xFF, 0xFF }))
+            {
+                guy->clip(0, 0, guy->width(), 100);
+                guy->color(0x00, 0x00, 0xff);
+                guy->y(SCREEN_HEIGHT - guy->height());
+                objects.push_back(guy);
+            }
+            else
+            {
+                delete guy;
+            }
         }
-        else if (0 == strncmp(msg + 7, "TEXT ", 5) && msglen > 12)
+        else if (0 == strncmp(msg.type + 7, "TEXT", 4) && msg.data)
         {
-            auto myText = new Sprite();
-            myText->setTexture(ttf->render(msg + 12, 0, 0, 0, renderer, true));
-            objects.push_back(myText);
-
-            // auto dim = ttf->measure(msg + 5);
-            // std::cout << "Measure '" << (msg + 5) << "': " << dim.w << "x" << dim.h << std::endl;
+            auto text = ttf->render(static_cast<const char *>(msg.data), 0, 0, 0, "Montserrat-Regular.ttf", 16, renderer, true);
+            if (text)
+            {
+                auto myText = new Sprite();
+                myText->setTexture(text);
+                objects.push_back(myText);
+            }
+            // auto dim = ttf->measure(static_cast<const char *>(msg.data), "Montserrat-Regular.ttf", 16);
+            // std::cout << "Measure '" << static_cast<const char *>(msg.data) << "': " << dim.w << "x" << dim.h << std::endl;
         }
     }
-    else if (0 == strncmp(msg, "COUNTER ", 8))
+    else if (0 == strncmp(msg.type, "COUNTER ", 8))
     {
-        if (0 == strcmp(msg + 8, "UPDATE"))
+        if (0 == strcmp(msg.type + 8, "UPDATE"))
         {
             ++update_counter;
         }
     }
-    else if (0 == strncmp(msg, "ACTION MOVE ", 12))
+    else if (0 == strncmp(msg.type, "ACTION", 6) && msg.data)
     {
         if (target)
         {
-            if (0 == strncmp(msg + 12, "UP", 2))
+            auto const action = static_cast<const char *>(msg.data);
+
+            if (0 == strncmp(action, "MOVE UP", 7))
             {
                 target->y(clamp(target->y() - 1, 0, SCREEN_HEIGHT));
             }
-            else if (0 == strncmp(msg + 12, "DOWN", 4))
+            else if (0 == strncmp(action, "MOVE DOWN", 9))
             {
                 target->y(clamp(target->y() + 1, 0, SCREEN_HEIGHT - target->height()));
             }
-            else if (0 == strncmp(msg + 12, "LEFT", 4))
+            else if (0 == strncmp(action, "MOVE LEFT", 9))
             {
                 target->x(clamp(target->x() - 1, 0, SCREEN_WIDTH));
             }
-            else if (0 == strncmp(msg + 12, "RIGHT", 5))
+            else if (0 == strncmp(action, "MOVE RIGHT", 10))
             {
                 target->x(clamp(target->x() + 1, 0, SCREEN_WIDTH - target->width()));
             }
         }
     }
-    else if (0 == strncmp(msg, "TICK ", 5) && msglen > 5)
+    else if (0 == strncmp(msg.type, "TICK", 4) && msg.data)
     {
-        unsigned long frame_time = atoi(msg + 5);
+        uint32_t frame_time = (uintptr_t)msg.data;
 
         if ((frame_time - second_time) >= 1000)
         {

@@ -1,7 +1,6 @@
 #ifndef _RENDER_SYSTEM_H_
 #define _RENDER_SYSTEM_H_
 
-#include <cstdlib>
 #include <vector>
 
 #include <SDL.h>
@@ -18,9 +17,7 @@ public:
     RenderSystem(MessageBus *);
     ~RenderSystem();
 
-    bool initialize();
-
-    void handleMessage(const char *, size_t);
+    void handleMessage(Message const &);
 
 private:
     SDL_Window * window = nullptr;

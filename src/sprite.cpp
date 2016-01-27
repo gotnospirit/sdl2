@@ -26,21 +26,14 @@ void Sprite::update(int)
 
 void Sprite::render(SDL_Renderer * renderer)
 {
-    if (texture)
+    if (clipped())
     {
-        if (clipped())
-        {
-            SDL_Rect projection { rect.x, rect.y, clipping.w, clipping.h };
-            render(renderer, &clipping, &projection);
-        }
-        else
-        {
-            render(renderer, NULL, &rect);
-        }
+        SDL_Rect projection { rect.x, rect.y, clipping.w, clipping.h };
+        render(renderer, &clipping, &projection);
     }
     else
     {
-        throw "No texture loaded!";
+        render(renderer, NULL, &rect);
     }
 }
 
@@ -143,6 +136,17 @@ SDL_Texture * Sprite::loadTexture(SDL_Surface * surface, SDL_Renderer * renderer
 
 void Sprite::render(SDL_Renderer * renderer, SDL_Rect const * const src, SDL_Rect const * const dest)
 {
+    if (!renderer)
+    {
+        std::cerr << "Invalid renderer!" << std::endl;
+        return ;
+    }
+    else if (!texture)
+    {
+        std::cerr << "No texture to render!" << std::endl;
+        return ;
+    }
+
     if (0.0 != angle)
     {
         SDL_RenderCopyEx(renderer, texture, src, dest, angle, has_pivot ? &pivot : NULL, SDL_FLIP_NONE);

@@ -3,15 +3,23 @@
 
 #include <vector>
 
+struct Message
+{
+    Message(const char *, void * = nullptr);
+
+    const char * type;
+    void * data;
+};
+
 class System;
 
 class MessageBus
 {
 public:
-    void add(System *);
-    void remove(System *);
+    void attach(System *);
+    void detach(System *);
 
-    void dispatch(const char *) const;
+    void dispatch(const char *, void * = nullptr) const;
 
 private:
     std::vector<System *> systems;

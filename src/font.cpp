@@ -7,67 +7,78 @@
 
 Font::~Font()
 {
-    free();
+    for (auto &pair : fonts)
+    {
+        TTF_CloseFont(pair.second);
+    }
 }
 
-bool Font::load(const char * filename, int ptsize)
+TTF_Font * Font::load(const char * filename, int ptsize)
 {
-    free();
+    auto iter = fonts.find(filename);
+    if (iter != fonts.end())
+    {
+        return iter->second;
+    }
 
     auto const &filepath = getFilepath(filename);
-
     std::cout << "Loading '" << filepath << "'" << std::endl;
 
-    font = TTF_OpenFont(filepath.c_str(), ptsize);
-    if (!font)
+    auto result = TTF_OpenFont(filepath.c_str(), ptsize);
+    if (!result)
     {
         std::cerr << "Failed to load font " << filepath << "! SDL_ttf Error: " << TTF_GetError() << std::endl;
     }
-    return !!font;
-}
-
-SDL_Texture * Font::render(const char * text, uint8_t r, uint8_t g, uint8_t b, SDL_Renderer * renderer, bool high_res) const
-{
-    SDL_Texture * result = nullptr;
-    //Render text surface
-    SDL_Surface * surface = high_res
-        ? TTF_RenderUTF8_Blended(font, text, { r, g, b })
-        : TTF_RenderUTF8_Solid(font, text, { r, g, b });
-
-    if (!surface)
-    {
-        std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
-    }
     else
     {
-        //Create texture from surface pixels
-        result = SDL_CreateTextureFromSurface(renderer, surface);
-        if (!result)
-        {
-            std::cerr << "Unable to create texture from rendered text! SDL_ttf Error: " << TTF_GetError() << std::endl;
-        }
-
-        //Get rid of old surface
-        SDL_FreeSurface(surface);
+        fonts.emplace(filename, result);
     }
     return result;
 }
 
-SDL_Rect Font::measure(const char * text) const
+SDL_Texture * Font::render(const char * text, uint8_t r, uint8_t g, uint8_t b, const char * fontname, int fontsize, SDL_Renderer * renderer, bool high_res)
 {
-    SDL_Rect result { 0, 0, 0, 0 };
-    if (TTF_SizeUTF8(font, text, &result.w, &result.h))
-    {
-        std::cerr << "Failed to measure '" << text << "'! SDL_ttf Error: " << TTF_GetError() << std::endl;
-    }
-    return result;
-}
+    SDL_Texture * result = nullptr;
 
-void Font::free()
-{
+    TTF_Font * font = load(fontname, fontsize);
     if (font)
     {
-        TTF_CloseFont(font);
-        font = nullptr;
+        //Render text surface
+        SDL_Surface * surface = high_res
+            ? TTF_RenderUTF8_Blended(font, text, { r, g, b })
+            : TTF_RenderUTF8_Solid(font, text, { r, g, b });
+
+        if (!surface)
+        {
+            std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        }
+        else
+        {
+            //Create texture from surface pixels
+            result = SDL_CreateTextureFromSurface(renderer, surface);
+            if (!result)
+            {
+                std::cerr << "Unable to create texture from rendered text! SDL_ttf Error: " << TTF_GetError() << std::endl;
+            }
+
+            //Get rid of old surface
+            SDL_FreeSurface(surface);
+        }
     }
+    return result;
+}
+
+SDL_Rect Font::measure(const char * text, const char * fontname, int fontsize)
+{
+    SDL_Rect result { 0, 0, 0, 0 };
+
+    TTF_Font * font = load(fontname, fontsize);
+    if (font)
+    {
+        if (TTF_SizeUTF8(font, text, &result.w, &result.h))
+        {
+            std::cerr << "Failed to measure '" << text << "'! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        }
+    }
+    return result;
 }

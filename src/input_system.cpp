@@ -1,6 +1,4 @@
 #include <iostream>
-#include <sstream>
-#include <cstring>
 
 #include <SDL.h>
 
@@ -19,11 +17,11 @@ InputSystem::~InputSystem()
     }
 }
 
-void InputSystem::handleMessage(const char * msg, size_t msglen)
+void InputSystem::handleMessage(Message const &msg)
 {
-    if (0 == strncmp(msg, "TICK ", 5) && msglen > 5)
+    if (0 == strncmp(msg.type, "TICK", 4) && msg.data)
     {
-        unsigned long frame_time = atoi(msg + 5);
+        uint32_t frame_time = (uintptr_t)msg.data;
 
         //Update models logic (200Hz)
         if ((frame_time - update_time) >= 5)
@@ -34,22 +32,22 @@ void InputSystem::handleMessage(const char * msg, size_t msglen)
 
             if (actions.enabled(ACTION_UP))
             {
-                sendMessage("ACTION MOVE UP");
+                sendMessage("ACTION", (void *)"MOVE UP");
             }
 
             if (actions.enabled(ACTION_DOWN))
             {
-                sendMessage("ACTION MOVE DOWN");
+                sendMessage("ACTION", (void *)"MOVE DOWN");
             }
 
             if (actions.enabled(ACTION_LEFT))
             {
-                sendMessage("ACTION MOVE LEFT");
+                sendMessage("ACTION", (void *)"MOVE LEFT");
             }
 
             if (actions.enabled(ACTION_RIGHT))
             {
-                sendMessage("ACTION MOVE RIGHT");
+                sendMessage("ACTION", (void *)"MOVE RIGHT");
             }
         }
     }
