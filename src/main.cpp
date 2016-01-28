@@ -5,6 +5,7 @@
 
 #include "message_bus.h"
 #include "input_system.h"
+#include "audio_system.h"
 #include "render_system.h"
 
 int main(int argc, char * args[])
@@ -21,7 +22,10 @@ int main(int argc, char * args[])
         MessageBus bus;
 
         InputSystem input(&bus);
+        AudioSystem audio(&bus);
         RenderSystem render(&bus);
+
+        bus.dispatch("START MUSIC");
 
         bus.dispatch("CREATE TABLE");
         bus.dispatch("CREATE SQUARE");
@@ -33,6 +37,8 @@ int main(int argc, char * args[])
         {
             bus.dispatch("TICK", (void *)(uintptr_t)SDL_GetTicks());
         }
+
+        bus.dispatch("STOP MUSIC");
     }
     catch(const char * msg)
     {

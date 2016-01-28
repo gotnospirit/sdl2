@@ -43,6 +43,7 @@ if (MSVC)
         "${CMAKE_SOURCE_DIR}/vendor/SDL2-2.0.4/lib/x86/SDL2main.lib"
         "${CMAKE_SOURCE_DIR}/vendor/SDL2_image-2.0.0/lib/x86/SDL2_image.lib"
         "${CMAKE_SOURCE_DIR}/vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.lib"
+        "${CMAKE_SOURCE_DIR}/vendor/SDL2_mixer-2.0.1/lib/x86/SDL2_mixer.lib"
     )
 
     set(COPY_DLL
@@ -52,6 +53,8 @@ if (MSVC)
         "vendor/SDL2_image-2.0.0/lib/x86/libpng16-16.dll"
         "vendor/SDL2_ttf-2.0.13/lib/x86/SDL2_ttf.dll"
         "vendor/SDL2_ttf-2.0.13/lib/x86/libfreetype-6.dll"
+        "vendor/SDL2_mixer-2.0.1/lib/x86/SDL2_mixer.dll"
+        # "vendor/SDL2_mixer-2.0.1/lib/x86/smpeg2.dll"
     )
 else ()
     include(FindPkgConfig)
@@ -59,13 +62,15 @@ else ()
     PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2)
     PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
     PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
+    PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer>=2.0.0)
 
-    include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS})
+    include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS} ${SDL2TTF_INCLUDE_DIRS} ${SDL2MIXER_INCLUDE_DIRS})
 
     set(SDL_LIBRARIES
         ${SDL2_LIBRARIES}
         ${SDL2IMAGE_LIBRARIES}
         ${SDL2TTF_LIBRARIES}
+        ${SDL2MIXER_LIBRARIES}
     )
 endif ()
 
@@ -75,6 +80,7 @@ set(COPY_ASSETS
     "assets/carpet.normal.mobile.png"
     "assets/frame.big.mobile.png"
     "assets/Montserrat-Regular.ttf"
+    "assets/beat.wav"
 )
 
 include_directories(
@@ -82,6 +88,7 @@ include_directories(
     vendor/SDL2-2.0.4/include
     vendor/SDL2_image-2.0.0/include
     vendor/SDL2_ttf-2.0.13/include
+    vendor/SDL2_mixer-2.0.1/include
 )
 
 add_executable(${PROJECT_NAME}
@@ -91,6 +98,7 @@ add_executable(${PROJECT_NAME}
     src/message_bus.cpp
     src/system.cpp
     src/input_system.cpp
+    src/audio_system.cpp
     src/render_system.cpp
     src/display_object.cpp
     src/sprite.cpp
