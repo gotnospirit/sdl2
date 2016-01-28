@@ -16,6 +16,7 @@ int main(int argc, char * args[])
         return 1;
     }
 
+    try
     {
         MessageBus bus;
 
@@ -32,6 +33,10 @@ int main(int argc, char * args[])
         {
             bus.dispatch("TICK", (void *)(uintptr_t)SDL_GetTicks());
         }
+    }
+    catch(const char * msg)
+    {
+        std::cerr << msg << std::endl;
     }
 
 	SDL_Quit();
