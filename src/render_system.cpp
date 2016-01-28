@@ -193,10 +193,15 @@ void RenderSystem::handleMessage(Message const &msg)
     else if (0 == strncmp(msg.type, "TICK", 4) && msg.data)
     {
         uint32_t frame_time = (uintptr_t)msg.data;
+        uint32_t dt = frame_time - second_time;
 
-        if ((frame_time - second_time) >= 1000)
+        if (dt >= 1000)
         {
             second_time = frame_time;
+
+            int nb_seconds = dt / 1000;
+            fps_counter /= nb_seconds;
+            update_counter /= nb_seconds;
 
             std::ostringstream ss;
             ss << "Hz : " << fps_counter << " - " << update_counter;
@@ -206,8 +211,8 @@ void RenderSystem::handleMessage(Message const &msg)
             update_counter = 0;
         }
 
-        //Refresh screen (~60Hz)
-        auto dt = frame_time - render_time;
+        //Refresh screen (max ~60Hz)
+        dt = frame_time - render_time;
         if (dt >= 16)
         {
             ++fps_counter;

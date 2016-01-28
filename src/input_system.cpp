@@ -23,7 +23,7 @@ void InputSystem::handleMessage(Message const &msg)
     {
         uint32_t frame_time = (uintptr_t)msg.data;
 
-        //Update models logic (200Hz)
+        //Update models logic (max 200Hz)
         if ((frame_time - update_time) >= 5)
         {
             update_time = frame_time;
