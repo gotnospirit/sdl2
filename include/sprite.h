@@ -37,9 +37,10 @@ protected:
     void free();
 
     SDL_Texture * texture = nullptr;
-    double angle;
-    SDL_Point pivot;
-    bool has_pivot;
+
+    double rotation_deg;
+    SDL_Point rotation_center;
+    bool has_rotation_center;
 };
 
 #endif // _SPRITE_H_

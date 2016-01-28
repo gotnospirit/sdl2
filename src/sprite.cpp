@@ -8,9 +8,9 @@
 
 Sprite::Sprite(SDL_Texture * ptr_texture) :
     DisplayObject(),
-    angle(0.0),
-    pivot({ 0, 0 }),
-    has_pivot(false)
+    rotation_deg(0.0),
+    rotation_center({ 0, 0 }),
+    has_rotation_center(false)
 {
     setTexture(ptr_texture);
 }
@@ -62,16 +62,16 @@ bool Sprite::load(const char * filename, SDL_Renderer * renderer, SDL_Color cons
 
 void Sprite::rotate(double deg)
 {
-    angle = deg;
-    has_pivot = false;
+    rotation_deg = deg;
+    has_rotation_center = false;
 }
 
 void Sprite::rotate(double deg, int x, int y)
 {
-    angle = deg;
-    pivot.x = x;
-    pivot.y = y;
-    has_pivot = true;
+    rotation_deg = deg;
+    rotation_center.x = x;
+    rotation_center.y = y;
+    has_rotation_center = true;
 }
 
 void Sprite::opacity(uint8_t value)
@@ -147,9 +147,9 @@ void Sprite::render(SDL_Renderer * renderer, SDL_Rect const * const src, SDL_Rec
         return ;
     }
 
-    if (0.0 != angle)
+    if (0.0 != rotation_deg)
     {
-        SDL_RenderCopyEx(renderer, texture, src, dest, angle, has_pivot ? &pivot : NULL, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(renderer, texture, src, dest, rotation_deg, has_rotation_center ? &rotation_center : NULL, SDL_FLIP_NONE);
     }
     else
     {
