@@ -5,7 +5,8 @@
 #include "input_system.h"
 
 InputSystem::InputSystem(MessageBus * bus) :
-    System(bus)
+    System(bus),
+    cursor_moved(false)
 {
 }
 
@@ -48,6 +49,13 @@ void InputSystem::handleMessage(Message const &msg)
             if (actions.enabled(ACTION_RIGHT))
             {
                 sendMessage("ACTION", (void *)"MOVE RIGHT");
+            }
+
+            if (cursor_moved)
+            {
+                cursor_moved = false;
+
+                sendMessage("CURSOR", (void *)&cursor);
             }
         }
     }
@@ -109,6 +117,29 @@ bool InputSystem::poll()
 
             case SDL_CONTROLLERBUTTONUP:
                 buttonup(e.cbutton);
+                break;
+
+            case SDL_MOUSEMOTION:
+                if (cursor.x != e.motion.x || cursor.y != e.motion.y)
+                {
+                    cursor.x = e.motion.x;
+                    cursor.y = e.motion.y;
+                    cursor_moved = true;
+                }
+                break;
+
+            case SDL_MOUSEBUTTONDOWN:
+                if (e.button.button == SDL_BUTTON_LEFT)
+                {
+                    sendMessage("ACTION", (void *)"HOLD ON");
+                }
+                break;
+
+            case SDL_MOUSEBUTTONUP:
+                if (e.button.button == SDL_BUTTON_LEFT)
+                {
+                    sendMessage("ACTION", (void *)"HOLD OFF");
+                }
                 break;
         }
     }

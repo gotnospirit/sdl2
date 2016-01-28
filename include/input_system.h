@@ -26,6 +26,8 @@ private:
     void buttondown(SDL_ControllerButtonEvent const &);
 
     SDL_Event e;
+    SDL_Point cursor;
+    bool cursor_moved;
     Actions actions;
 
     unsigned long update_time = 0;

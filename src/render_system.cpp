@@ -166,6 +166,15 @@ void RenderSystem::handleMessage(Message const &msg)
             ++update_counter;
         }
     }
+    else if (0 == strncmp(msg.type, "CURSOR", 6))
+    {
+        auto const &point = static_cast<const SDL_Point *>(msg.data);
+
+        if (point)
+        {
+            std::cout << "{ x: " << point->x << ", y: " << point->y << " }" << std::endl;
+        }
+    }
     else if (0 == strncmp(msg.type, "ACTION", 6) && msg.data)
     {
         if (target)
@@ -187,6 +196,14 @@ void RenderSystem::handleMessage(Message const &msg)
             else if (0 == strncmp(action, "MOVE RIGHT", 10))
             {
                 target->x(clamp(target->x() + 1, 0, SCREEN_WIDTH - target->width()));
+            }
+            else if (0 == strncmp(action, "HOLD ON", 7))
+            {
+                std::cout << "clicked!" << std::endl;
+            }
+            else if (0 == strncmp(action, "HOLD OFF", 8))
+            {
+                std::cout << "unclicked!" << std::endl;
             }
         }
     }
